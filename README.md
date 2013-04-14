@@ -76,6 +76,9 @@ highlight link multiple_cursors_visual Visual
 - Buggy when `wrap` is turned on
 - Cursor highlighting is off. The last column on the same row as Vim's cursor is not highlighted incorrectly. Setting virtualedit=all might help
 
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md)
+
 ## Contributing
 As one can see, there're still many issues to be resolved, patches and suggestions are always welcome!
 
