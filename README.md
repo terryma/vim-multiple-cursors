@@ -1,7 +1,7 @@
 # vim-multiple-cursors
 
 ## About
-[There](https://github.com/paradigm/vim-multicursor) [have](https://github.com/felixr/vim-multiedit) [been](https://github.com/hlissner/vim-multiedit) [many](https://github.com/adinapoli/vim-markmultiple) [attempts](https://github.com/AndrewRadev/multichange.vim) at bringing Sublime Text's awesome [multiple selection](http://www.sublimetext.com/docs/2/multiple_selection_with_the_keyboard.html) feature into Vim, but none so far have been in my opinion a faithful port that is simplistic to use, yet powerful and intuitive enough for an existing Vim user. [vim-multiple-cursors] is yet another attempt at that.
+[There](https://github.com/paradigm/vim-multicursor) [have](https://github.com/felixr/vim-multiedit) [been](https://github.com/hlissner/vim-multiedit) [many](https://github.com/adinapoli/vim-markmultiple) [attempts](https://github.com/AndrewRadev/multichange.vim) at bringing Sublime Text's awesome [multiple selection][sublime-multiple-selection] feature into Vim, but none so far have been in my opinion a faithful port that is simplistic to use, yet powerful and intuitive enough for an existing Vim user. [vim-multiple-cursors] is yet another attempt at that.
 
 ### It's great for quick refactoring
 ![Example1](assets/example1.gif?raw=true)
@@ -57,6 +57,15 @@ If set to 0, then pressing `g:multi_cursor_exit_key` in _Visual_ mode will not q
 ### ```g:multi_cursor_exit_from_insert_mode``` (Default: 1)
 If set to 0, then pressing `g:multi_cursor_exit_key` in _Insert_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
+### Highlight
+The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
+
+```
+" Default highlighting (see help :highlight and help :highlight-link)
+highlight multiple_cursors_cursor term=reverse cterm=reverse gui=reverse
+highlight link multiple_cursors_visual Visual
+```
+
 ## Issues
 - Multi key commands like `ciw` do not work at the moment
 - All user input typed before Vim is able to fan out the last operation to all cursors is lost. This is a implementation decision to keep the input perfectly synced in all locations, at the cost of potentially losing user input.
@@ -70,7 +79,12 @@ If set to 0, then pressing `g:multi_cursor_exit_key` in _Insert_ mode will not q
 ## Contributing
 As one can see, there're still many issues to be resolved, patches and suggestions are always welcome!
 
+## Credit
+Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selection] feature, also encouraged by Emac's [multiple cursors][emacs-multiple-cursors] implemetation by Magnar Sveen
+
 [vim-multiple-cursors]:http://github.com/terryma/vim-multiple-cursors
+[sublime-multiple-selection]:http://www.sublimetext.com/docs/2/multiple_selection_with_the_keyboard.html
 [Pathogen]:http://github.com/tpope/vim-pathogen
 [Vundle]:http://github.com/gmarik/vundle
 [Neobundle]:http://github.com/Shougo/neobundle.vim
+[emacs-multiple-cursors]:https://github.com/magnars/multiple-cursors.el
