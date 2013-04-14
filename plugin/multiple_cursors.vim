@@ -86,10 +86,6 @@ if exists('g:multi_cursor_next_key')
   exec 'xnoremap <silent> '.g:multi_cursor_next_key.
         \' :<C-u>call multiple_cursors#new("v")<CR>'
 endif
-if exists('g:multi_cursor_quit_key')
-  exec 'nnoremap <silent> '.g:multi_cursor_quit_key.
-        \' :call multiple_cursors#reset()<CR>'
-endif
 if exists('g:multi_cursor_prev_key')
   exec 'xnoremap <silent> '.g:multi_cursor_prev_key.
         \' :<C-u>call multiple_cursors#prev()<CR>'

@@ -31,7 +31,7 @@ Two additional keys are also mapped:
 - `Ctrl-p` in Visual mode will remove the current virtual cursor and go back to the previous virtual cursor location. This is useful if you are trigger happy with `Ctrl-n` and accidentally went too far.
 - `Ctrl-x` in Visual mode will remove the current virtual cursor and skip to the next virtual cursor location. This is useful if you don't want the current selection to be a candidate to operate on later.
 
-The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, press `<Esc>` to remove them.
+**NOTE**: The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 
 ## Mapping
 Out of the box, `Ctrl-n`, `Ctrl-p`, and `Ctrl-x` are mapped by default. If you don't like the plugin taking over your favorite key bindings, then turn off the default with
