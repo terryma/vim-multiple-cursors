@@ -86,14 +86,6 @@ if exists('g:multi_cursor_next_key')
   exec 'xnoremap <silent> '.g:multi_cursor_next_key.
         \' :<C-u>call multiple_cursors#new("v")<CR>'
 endif
-if exists('g:multi_cursor_prev_key')
-  exec 'xnoremap <silent> '.g:multi_cursor_prev_key.
-        \' :<C-u>call multiple_cursors#prev()<CR>'
-endif
-if exists('g:multi_cursor_skip_key')
-  exec 'xnoremap <silent> '.g:multi_cursor_skip_key.
-        \' :<C-u>call multiple_cursors#skip()<CR>'
-endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

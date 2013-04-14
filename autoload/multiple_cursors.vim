@@ -25,6 +25,11 @@ function! multiple_cursors#reset()
   call s:cm.reset()
 endfunction
 
+" Print some debugging info
+function! multiple_cursors#debug()
+  call s:cm.debug()
+endfunction
+
 " Creates a new cursor. Different logic applies depending on the mode the user
 " is in and the current state of the buffer.
 " 1. In normal mode, a new cursor is created at the end of the word under Vim's
@@ -87,6 +92,7 @@ function! multiple_cursors#prev()
   call s:cm.delete_current()
   " If that was the last cursor, go back to normal mode
   if s:cm.is_empty()
+    call s:exit_visual_mode()
     call s:cm.reset()
   else
     call s:cm.reapply_visual_selection()
@@ -187,19 +193,39 @@ let s:CursorManager = {}
 " Constructor
 function! s:CursorManager.new()
   let obj = copy(self)
+  " List of Cursors we're managing
   let obj.cursors = []
+  " Current index into the s:cursors array
   let obj.current_index = -1
+  " This marks the starting cursor index into the s:cursors array
   let obj.starting_index = -1
+  " We save some user settings when the plugin loads initially
   let obj.saved_settings = {
         \ 'virtualedit': &virtualedit,
         \ 'cursorline': &cursorline,
         \ }
+  " We save the window view when multicursor mode is entered
+  let obj.saved_winview = []
   return obj
 endfunction
 
 " Clear all cursors and their highlights
 function! s:CursorManager.reset() dict
+  " Clear all the highlight
   call clearmatches()
+
+  " Return the view back to the beginning
+  if !empty(self.saved_winview)
+    call winrestview(self.saved_winview)
+    let self.saved_winview = []
+  endif
+
+  " If the cursor moved, just restoring the view could get confusing, let's
+  " put the cursor at where the user left it
+  if !self.is_empty()
+    call setpos('.', self.get(0).position)
+  endif
+
   let self.cursors = []
   let self.current_index = -1
   let self.starting_index = -1
@@ -342,14 +368,15 @@ function! s:CursorManager.loop_done() dict
   return self.current_index == self.starting_index
 endfunction
 
-" Tweak some user settings. This is called every time multicursor mode is
-" entered.
+" Tweak some user settings, and save our current window view. This is called
+" every time multicursor mode is entered.
 " virtualedit needs to be set to onemore for updates to work correctly
 " cursorline needs to be turned off for the cursor highlight to work on the line
 " where the real vim cursor is
 function! s:CursorManager.initialize() dict
   let &virtualedit = "onemore"
   let &cursorline = 0
+  let self.saved_winview = winsaveview()
 endfunction
 
 " Restore user settings.
@@ -409,11 +436,10 @@ let s:to_mode=''
 " This is the total number of lines in the buffer before processing s:char
 let s:saved_linecount=-1
 " These keys will not be replcated at every cursor location
-let s:special_keys = [
-      \ g:multi_cursor_next_key,
-      \ g:multi_cursor_prev_key,
-      \ g:multi_cursor_skip_key,
-      \ ]
+let s:special_keys = {
+      \ 'v': [ g:multi_cursor_next_key, g:multi_cursor_prev_key, g:multi_cursor_skip_key ],
+      \ 'n': [ g:multi_cursor_next_key ],
+      \ }
 " The highlight group we use for all the cursors
 let s:hi_group_cursor = 'multiple_cursors_cursor'
 " The highlight group we use for all the visual selection
@@ -453,6 +479,10 @@ endfunction
 " Precondition: In normal mode
 " Postcondition: In visual mode, with the region selected
 function! s:select_in_visual_mode(region)
+  " Exit visual mode first. If we're in visual mode, then the normal mode
+  " command executed later could interfere
+  call s:exit_visual_mode()
+
   call setpos('.', a:region[0])
   call setpos("'`", a:region[1])
   if getpos('.') == getpos("'`")
@@ -460,6 +490,9 @@ function! s:select_in_visual_mode(region)
   else
     normal! v``
   endif
+
+  " Unselect and reselect it again to properly set the '< and '> markers
+  exec "normal! \<Esc>gv"
 endfunction
 
 " Highlight the position using the cursor highlight group
@@ -666,24 +699,36 @@ function! s:exit()
   return 0
 endfunction
 
+" These keys don't get faned out to all cursor locations. Instead, they're used
+" to add new / remove existing cursors
+" Precondition: The function is only called when the keys and mode respect the
+" setting in s:special_keys
+function! s:handle_special_key(key, mode)
+  if a:key == g:multi_cursor_next_key
+    call multiple_cursors#new(a:mode)
+  elseif a:key == g:multi_cursor_prev_key
+    call multiple_cursors#prev()
+  elseif a:key == g:multi_cursor_skip_key
+    call multiple_cursors#skip()
+  endif
+endfunction
+
 " Take users input and figure out what to do with it
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   let s:to_mode = ''
   redraw
   let s:char = s:get_char()
-  redraw
 
   if s:exit()
     return
   endif
-
-  let feedkeys = ''
-  if index(s:special_keys, s:char) != -1
-    let feedkeys = s:char
+  
+  " If the key is a special key and we're in the right mode, handle it
+  if index(get(s:special_keys, s:from_mode, []), s:char) != -1
+    call s:handle_special_key(s:char, s:from_mode)
   else
     call s:cm.start_loop()
-    let feedkeys = "\<Plug>(multi_cursor_process_user_input)"
+    call s:feedkeys("\<Plug>(multi_cursor_process_user_input)")
   endif
-  call s:feedkeys(feedkeys)
 endfunction
