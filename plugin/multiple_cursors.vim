@@ -33,6 +33,7 @@ let s:settings = {
       \ }
 
 let s:settings_if_default = {
+      \ 'start_key': '<C-n>',
       \ 'quit_key': '<Esc>',
       \ 'next_key': '<C-n>',
       \ 'prev_key': '<C-p>',
@@ -46,10 +47,10 @@ if g:multi_cursor_use_default_mapping
 endif
 
 " External mappings
-if exists('g:multi_cursor_next_key')
-  exec 'nnoremap <silent> '.g:multi_cursor_next_key.
+if exists('g:multi_cursor_start_key')
+  exec 'nnoremap <silent> '.g:multi_cursor_start_key.
         \' :call multiple_cursors#new("n")<CR>'
-  exec 'xnoremap <silent> '.g:multi_cursor_next_key.
+  exec 'xnoremap <silent> '.g:multi_cursor_start_key.
         \' :<C-u>call multiple_cursors#new("v")<CR>'
 endif
 
