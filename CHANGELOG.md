@@ -1,3 +1,8 @@
+## 1.4 (04/14/2013)
+
+Bugfixes:
+  - Don't use clearmatches(). It clears highlighting from other plugins. This fixes #13
+
 ## 1.3 (04/14/2013)
 
 Bugfixes:

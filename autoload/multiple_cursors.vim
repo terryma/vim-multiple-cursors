@@ -259,9 +259,6 @@ endfunction
 
 " Clear all cursors and their highlights
 function! s:CursorManager.reset() dict
-  " Clear all the highlight
-  call clearmatches()
-
   " Return the view back to the beginning
   if !empty(self.saved_winview)
     call winrestview(self.saved_winview)
@@ -274,10 +271,19 @@ function! s:CursorManager.reset() dict
     call setpos('.', self.get(0).position)
   endif
 
+  " Delete all cursors and clear their highlights. Don't do clearmatches() as
+  " that will potentially interfere with other plugins
+  if !self.is_empty()
+    for i in range(1, self.size())
+      call self.delete_current()
+    endfor
+  endif
+
   let self.cursors = []
   let self.current_index = -1
   let self.starting_index = -1
   call self.restore_user_settings()
+
   " FIXME(terryma): Doesn't belong here
   let s:from_mode = ''
   let s:to_mode = ''
@@ -312,7 +318,7 @@ function! s:CursorManager.delete_current() dict
   let self.current_index -= 1
 endfunction
 
-" Remove the highlighting if it matchid exists
+" Remove the highlighting if its matchid exists
 function! s:CursorManager.remove_highlight(hi_id) dict
   if a:hi_id
     call matchdelete(a:hi_id)
