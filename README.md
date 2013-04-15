@@ -45,10 +45,10 @@ You can then map the 'next', 'previous', 'skip', and 'exit' keys like the follow
 let g:multi_cursor_next_key='<C-n>'
 let g:multi_cursor_prev_key='<C-p>'
 let g:multi_cursor_skip_key='<C-x>'
-let g:multi_cursor_exit_key='<Esc>'
+let g:multi_cursor_quit_key='<Esc>'
 ```
 
-**NOTE** Please make sure to always map something to `g:multi_cursor_exit_key`, otherwise you'll have a tough time quitting from multicursor mode.
+**NOTE** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
 **NOTE** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
@@ -56,10 +56,10 @@ let g:multi_cursor_exit_key='<Esc>'
 Currently there're two additional global settings one can tweak:
 ### ```g:multi_cursor_exit_from_visual_mode``` (Defaut: 1)
 
-If set to 0, then pressing `g:multi_cursor_exit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
+If set to 0, then pressing `g:multi_cursor_quit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
 ### ```g:multi_cursor_exit_from_insert_mode``` (Default: 1)
-If set to 0, then pressing `g:multi_cursor_exit_key` in _Insert_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
+If set to 0, then pressing `g:multi_cursor_quit_key` in _Insert_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
