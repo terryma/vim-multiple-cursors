@@ -34,19 +34,23 @@ Two additional keys are also mapped:
 **NOTE**: The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 
 ## Mapping
-Out of the box, `Ctrl-n`, `Ctrl-p`, and `Ctrl-x` are mapped by default. If you don't like the plugin taking over your favorite key bindings, then turn off the default with
+Out of the box, only the single key `Ctrl-n` is mapped in regular Vim's Normal mode and Visual mode to provide the functionality mentioned above. `Ctrl-n`, `Ctrl-p`, `Ctrl-x`, and `<Esc>` are mapped in the special multicursor mode once you've added at least one virtual cursor to the buffer. If you don't like the plugin taking over your favorite key bindings, you can turn off the default with
 ```
 let g:multi_cursor_use_default_mapping=0
 ```
 
-You can map the 'next', 'previous', 'skip', and 'exit' keys like the following:
+You can then map the 'next', 'previous', 'skip', and 'exit' keys like the following:
 ```
 " Default mapping
-let g:multi_cursor_next_key="\<C-n>"
-let g:multi_cursor_prev_key="\<C-p>"
-let g:multi_cursor_skip_key="\<C-x>"
-let g:multi_cursor_exit_key="\<Esc>"
+let g:multi_cursor_next_key='<C-n>'
+let g:multi_cursor_prev_key='<C-p>'
+let g:multi_cursor_skip_key='<C-x>'
+let g:multi_cursor_exit_key='<Esc>'
 ```
+
+**NOTE** Please make sure to always map something to `g:multi_cursor_exit_key`, otherwise you'll have a tough time quitting from multicursor mode.
+
+**NOTE** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
 Currently there're two additional global settings one can tweak:

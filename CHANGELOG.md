@@ -1,3 +1,8 @@
+## 1.3 (04/14/2013)
+
+Bugfixes:
+  - Change mapping from using expression-quote syntax to using raw strings
+
 ## 1.2 (04/14/2013)
 
 Bugfixes:

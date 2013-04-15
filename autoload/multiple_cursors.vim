@@ -1,4 +1,52 @@
 "===============================================================================
+" Initialization
+"===============================================================================
+
+" Tweak key settings. If the key is set using 'expr-quote' (h: expr-quote), then
+" there's nothing that we need to do. If it's set using raw strings, then we
+" need to convert it.  We need to resort to such voodoo exec magic here to get
+" it to work the way we like. '<C-n>' is converted to '\<C-n>' by the end and
+" the global vars are replaced by their new value. This is ok since the mapping
+" using '<C-n>' should already have completed in the plugin file.
+for key in [ 'g:multi_cursor_next_key',
+           \ 'g:multi_cursor_prev_key',
+           \ 'g:multi_cursor_skip_key',
+           \ 'g:multi_cursor_quit_key' ]
+  if exists(key)
+    " Translate raw strings like "<C-n>" into key code like "\<C-n>"
+    exec 'let temp = '.key
+    if temp =~ '^<.*>$'
+      exec 'let '.key.' = "\'.temp.'"' 
+    endif
+  else
+    " If the user didn't define it, initialize it to an empty string so the
+    " logic later don't break
+    exec 'let '.key.' = ""'
+  endif
+endfor
+
+" These keys will not be replicated at every cursor location. Make sure that
+" this assignment happens AFTER the key tweak setting above
+let s:special_keys = {
+      \ 'v': [ g:multi_cursor_next_key, g:multi_cursor_prev_key, g:multi_cursor_skip_key ],
+      \ 'n': [ g:multi_cursor_next_key ],
+      \ }
+
+" The highlight group we use for all the cursors
+let s:hi_group_cursor = 'multiple_cursors_cursor'
+
+" The highlight group we use for all the visual selection
+let s:hi_group_visual = 'multiple_cursors_visual'
+
+" Set up highlighting
+if !hlexists(s:hi_group_cursor)
+  exec "highlight ".s:hi_group_cursor." term=reverse cterm=reverse gui=reverse"
+endif
+if !hlexists(s:hi_group_visual)
+  exec "highlight link ".s:hi_group_visual." Visual"
+endif
+
+"===============================================================================
 " Internal Mappings
 "===============================================================================
 
@@ -285,6 +333,7 @@ function! s:CursorManager.debug() dict
   echom 'current mode = '.mode()
   echom 'current mode custom = '.s:to_mode
   echom 'prev mode custom = '.s:from_mode
+  echom 'special keys = '.string(s:special_keys)
   echom ' '
 endfunction
 
@@ -435,28 +484,8 @@ let s:from_mode=''
 let s:to_mode=''
 " This is the total number of lines in the buffer before processing s:char
 let s:saved_linecount=-1
-" These keys will not be replcated at every cursor location
-let s:special_keys = {
-      \ 'v': [ g:multi_cursor_next_key, g:multi_cursor_prev_key, g:multi_cursor_skip_key ],
-      \ 'n': [ g:multi_cursor_next_key ],
-      \ }
-" The highlight group we use for all the cursors
-let s:hi_group_cursor = 'multiple_cursors_cursor'
-" The highlight group we use for all the visual selection
-let s:hi_group_visual = 'multiple_cursors_visual'
-
 " Singleton cursor manager instance
 let s:cm = s:CursorManager.new()
-
-"===============================================================================
-" Initialization
-"===============================================================================
-if !hlexists(s:hi_group_cursor)
-  exec "highlight ".s:hi_group_cursor." term=reverse cterm=reverse gui=reverse"
-endif
-if !hlexists(s:hi_group_visual)
-  exec "highlight link ".s:hi_group_visual." Visual"
-endif
 
 "===============================================================================
 " Utility functions
