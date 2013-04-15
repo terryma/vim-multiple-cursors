@@ -67,10 +67,10 @@ let s:settings = {
       \ }
 
 let s:settings_if_default = {
-      \ 'quit_key': "\<Esc>",
-      \ 'next_key': "\<C-n>",
-      \ 'prev_key': "\<C-p>",
-      \ 'skip_key': "\<C-x>",
+      \ 'quit_key': '<Esc>',
+      \ 'next_key': '<C-n>',
+      \ 'prev_key': '<C-p>',
+      \ 'skip_key': '<C-x>',
       \ }
 
 call s:init_settings(s:settings)
