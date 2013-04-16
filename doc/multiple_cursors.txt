@@ -103,6 +103,12 @@ mode than for selecting the next location, do like the following: >
     let g:multi_cursor_start_key='<F6>'
 <
 
+IMPORTANT: Please note that currently only single keystroes and special
+keys can be mapped. This contraint is also the reason why multikey commands
+such as `ciw` do not work and cause unexpected behavior in Normal mode. This
+means that a mapping like `<Leader>n` will NOT work correctly. For a list of
+special keys that are supported, see |key-notation|
+
 NOTE: Please make sure to always map something to |g:multi_cursor_quit_key|,
 otherwise you'll have a tough time quitting from multicursor mode.
 
