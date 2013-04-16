@@ -12,6 +12,8 @@
 ### Do it backwards too! This is not just a replay of the above gif :)
 ![Example3](assets/example3.gif?raw=true)
 
+To see what keystrokes are used for the above example, see [this issue](https://github.com/terryma/vim-multiple-cursors/issues/12).
+
 ## Features
 - Live update in Insert mode
 - One key to rule it all! See [Quick Start](#quick-start) on what the key does in different scenarios
