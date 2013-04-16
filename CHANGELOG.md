@@ -1,3 +1,8 @@
+## 1.5 (04/15/2013)
+
+Bugfixes:
+  - Exit Vim's visual mode before waiting for user's next input. This fixes #14
+
 ## 1.4 (04/14/2013)
 
 Bugfixes:
