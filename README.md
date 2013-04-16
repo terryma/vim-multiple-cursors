@@ -86,7 +86,6 @@ highlight link multiple_cursors_visual Visual
 - Performance in terminal vim degrades significantly with more cursors
 - Select mode is not implemented
 - Buggy when `wrap` is turned on
-- Cursor highlighting is off. The last column on the same row as Vim's cursor is not highlighted incorrectly. Setting virtualedit=all might help
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)

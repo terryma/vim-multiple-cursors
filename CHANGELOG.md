@@ -1,3 +1,8 @@
+## 1.7 (04/15/2013)
+
+Bugfixes:
+  - Finally fix the annoying highlighting problem when the last virtual cursor is on the last character of the line. The solution is a hack, but it should be harmless
+
 ## 1.6 (04/15/2013)
 
 Bugfixes:
