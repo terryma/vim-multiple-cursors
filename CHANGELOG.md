@@ -1,3 +1,8 @@
+## 1.8 (04/16/2013)
+
+Bugfixes:
+  - Fix regression that causes call stack to explode with too many cursors
+
 ## 1.7 (04/15/2013)
 
 Bugfixes:
