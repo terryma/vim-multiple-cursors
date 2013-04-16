@@ -50,19 +50,20 @@ endif
 " Internal Mappings
 "===============================================================================
 
-inoremap <silent> <Plug>(multi_cursor_process_user_input)
-      \ <C-o>:call <SID>process_user_inut('i')<CR>
-nnoremap <silent> <Plug>(multi_cursor_process_user_input)
-      \ :call <SID>process_user_inut('n')<CR>
-xnoremap <silent> <Plug>(multi_cursor_process_user_input)
-      \ :<C-u>call <SID>process_user_inut('v')<CR>
+inoremap <silent> <Plug>(i) <C-o>:call <SID>process_user_inut('i')<CR>
+nnoremap <silent> <Plug>(i) :call <SID>process_user_inut('n')<CR>
+xnoremap <silent> <Plug>(i) :<C-u>call <SID>process_user_inut('v')<CR>
 
-inoremap <silent> <Plug>(multi_cursor_apply_user_input_next)
-      \ <C-o>:call <SID>apply_user_input_next('i')<CR>
-nnoremap <silent> <Plug>(multi_cursor_apply_user_input_next)
-      \ :call <SID>apply_user_input_next('n')<CR>
-xnoremap <silent> <Plug>(multi_cursor_apply_user_input_next)
-      \ :<C-u>call <SID>apply_user_input_next('v')<CR>
+inoremap <silent> <Plug>(a) <C-o>:call <SID>apply_user_input_next('i')<CR>
+nnoremap <silent> <Plug>(a) :call <SID>apply_user_input_next('n')<CR>
+xnoremap <silent> <Plug>(a) :<C-u>call <SID>apply_user_input_next('v')<CR>
+
+" Note that although these mappings are seemingly triggerd from Visual mode,
+" they are in fact triggered from Normal mode. We quit visual mode to allow the
+" virtual highlighting to take over
+nnoremap <silent> <Plug>(p) :<C-u>call multiple_cursors#prev()<CR>
+nnoremap <silent> <Plug>(s) :<C-u>call multiple_cursors#skip()<CR>
+nnoremap <silent> <Plug>(n) :<C-u>call multiple_cursors#new('v')<CR>
 
 "===============================================================================
 " Public Functions
@@ -626,7 +627,7 @@ function! s:process_user_inut(mode)
 
   " Apply the user input. Note that the above could potentially change mode, we
   " use the mapping below to help us determine what the new mode is
-  call s:feedkeys(s:char."\<Plug>(multi_cursor_apply_user_input_next)")
+  call s:feedkeys(s:char."\<Plug>(a)")
 endfunction
 
 " Apply the user input at the next cursor location
@@ -747,12 +748,15 @@ endfunction
 " Precondition: The function is only called when the keys and mode respect the
 " setting in s:special_keys
 function! s:handle_special_key(key, mode)
+  " Use feedkeys here instead of calling the function directly to prevent
+  " increasing the call stack, since feedkeys execute after the current call
+  " finishes
   if a:key == g:multi_cursor_next_key
-    call multiple_cursors#new(a:mode)
+    call s:feedkeys("\<Plug>(n)")
   elseif a:key == g:multi_cursor_prev_key
-    call multiple_cursors#prev()
+    call s:feedkeys("\<Plug>(p)")
   elseif a:key == g:multi_cursor_skip_key
-    call multiple_cursors#skip()
+    call s:feedkeys("\<Plug>(s)")
   endif
 endfunction
 
@@ -806,6 +810,6 @@ function! s:wait_for_user_input(mode)
     call s:handle_special_key(s:char, s:from_mode)
   else
     call s:cm.start_loop()
-    call s:feedkeys("\<Plug>(multi_cursor_process_user_input)")
+    call s:feedkeys("\<Plug>(i)")
   endif
 endfunction
