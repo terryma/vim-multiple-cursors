@@ -33,7 +33,7 @@ Two additional keys are also mapped:
 - `Ctrl-p` in Visual mode will remove the current virtual cursor and go back to the previous virtual cursor location. This is useful if you are trigger happy with `Ctrl-n` and accidentally went too far.
 - `Ctrl-x` in Visual mode will remove the current virtual cursor and skip to the next virtual cursor location. This is useful if you don't want the current selection to be a candidate to operate on later.
 
-**NOTE**: The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
+**NOTE:** The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 
 ## Mapping
 Out of the box, only the single key `Ctrl-n` is mapped in regular Vim's Normal mode and Visual mode to provide the functionality mentioned above. `Ctrl-n`, `Ctrl-p`, `Ctrl-x`, and `<Esc>` are mapped in the special multicursor mode once you've added at least one virtual cursor to the buffer. If you don't like the plugin taking over your favorite key bindings, you can turn off the default with
@@ -50,9 +50,17 @@ let g:multi_cursor_skip_key='<C-x>'
 let g:multi_cursor_quit_key='<Esc>'
 ```
 
-**NOTE** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
+By default, the 'next' key is also used to enter multicursor mode. If you want to use a different key to start multicursor mode than for selecting the next location, do like the following:
+```
+" Map start key separately from next key
+let g:multi_cursor_start_key='<F6>'
+```
 
-**NOTE** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
+**IMPORTANT:** Please note that currently only single keystroes and special keys can be mapped. This contraint is also the reason why multikey commands such as `ciw` do not work and cause unexpected behavior in Normal mode. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
+
+**NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
+
+**NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
 Currently there're two additional global settings one can tweak:
@@ -96,3 +104,4 @@ Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selec
 [Vundle]:http://github.com/gmarik/vundle
 [Neobundle]:http://github.com/Shougo/neobundle.vim
 [emacs-multiple-cursors]:https://github.com/magnars/multiple-cursors.el
+
