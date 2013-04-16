@@ -321,7 +321,9 @@ endfunction
 " Remove the highlighting if its matchid exists
 function! s:CursorManager.remove_highlight(hi_id) dict
   if a:hi_id
-    call matchdelete(a:hi_id)
+    " If the user did a matchdelete or a clearmatches, we don't want to barf if
+    " the matchid is no longer valid
+    silent! call matchdelete(a:hi_id)
   endif
 endfunction
 
@@ -530,6 +532,16 @@ function! s:select_in_visual_mode(region)
   exec "normal! \<Esc>gv"
 endfunction
 
+" FIXME Ok here's possibly a Vim bug. Whenever two lines are the same length,
+" doing a 'C-e' in insert mode to go to the last column means that the last line
+" will not get highlight. This won't happen if the two lines have different
+" length. This also only happens if the last line is one of the lines that
+" have the same length
+" This also appears to be the issue in insert mode. If two lines have the exact
+" same length, then the cursor on the last column isn't draw correctly
+" TODO Test whetehr we can temporarly modify the line to make them not equal and
+" revert it back
+
 " Highlight the position using the cursor highlight group
 function! s:highlight_cursor(pos)
   " Give cursor highlight high priority, to overrule visual selection
@@ -637,10 +649,6 @@ function! s:apply_user_input_next(mode)
 
   " We're done if we're made the full round
   if s:cm.loop_done()
-    " If we stay in visual mode, we need to reselect the original cursor
-    if s:to_mode ==# 'v'
-      call s:cm.reapply_visual_selection()
-    endif
     call s:wait_for_user_input(s:to_mode)
   else
     " Continue to next
@@ -752,6 +760,12 @@ endfunction
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   let s:to_mode = ''
+
+  if s:from_mode ==# 'v'
+    " Exit visual mode so Vim's visual highlight does not take over
+    call s:exit_visual_mode()
+  endif
+
   redraw
   let s:char = s:get_char()
 
