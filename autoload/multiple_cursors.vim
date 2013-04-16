@@ -491,11 +491,13 @@ endfunction
 " This is the last user input that we're going to replicate, in its string form
 let s:char = ''
 " This is the mode the user is in before s:char
-let s:from_mode=''
+let s:from_mode = ''
 " This is the mode the user is in after s:char
-let s:to_mode=''
+let s:to_mode = ''
 " This is the total number of lines in the buffer before processing s:char
-let s:saved_linecount=-1
+let s:saved_linecount = -1
+" This is used to apply the highlight fix. See s:apply_highight_fix()
+let s:saved_line = 0
 " Singleton cursor manager instance
 let s:cm = s:CursorManager.new()
 
@@ -535,16 +537,6 @@ function! s:select_in_visual_mode(region)
   " Unselect and reselect it again to properly set the '< and '> markers
   exec "normal! \<Esc>gv"
 endfunction
-
-" FIXME Ok here's possibly a Vim bug. Whenever two lines are the same length,
-" doing a 'C-e' in insert mode to go to the last column means that the last line
-" will not get highlight. This won't happen if the two lines have different
-" length. This also only happens if the last line is one of the lines that
-" have the same length
-" This also appears to be the issue in insert mode. If two lines have the exact
-" same length, then the cursor on the last column isn't draw correctly
-" TODO Test whetehr we can temporarly modify the line to make them not equal and
-" revert it back
 
 " Highlight the position using the cursor highlight group
 function! s:highlight_cursor(pos)
@@ -653,6 +645,10 @@ function! s:apply_user_input_next(mode)
 
   " We're done if we're made the full round
   if s:cm.loop_done()
+    if s:to_mode ==# 'v'
+      " This is necessary to set the "'<" and "'>" markers properly
+      call s:cm.reapply_visual_selection()
+    endif
     call s:wait_for_user_input(s:to_mode)
   else
     " Continue to next
@@ -760,17 +756,45 @@ function! s:handle_special_key(key, mode)
   endif
 endfunction
 
-" Take users input and figure out what to do with it
+" The last line where the normal Vim cursor is always seems to highlighting
+" issues if the cursor is on the last column. Vim's cursor seems to override the
+" highlight of the virtual cursor. This won't happen if the virtual cursor isn't
+" the last character on the line. This is a hack to add an empty space on the
+" Vim cursor line right before we do the redraw, we'll revert the change
+" immedidately after the redraw so the change should not be intrusive to the
+" user's buffer content
+function! s:apply_highlight_fix()
+  " Only do this if we're on the last character of the line
+  if col('.') == col('$')
+    let s:saved_line = getline('.')
+    call setline('.', s:saved_line.' ')
+  endif
+endfunction
+
+" Revert the fix if it was applied earlier
+function! s:revert_highlight_fix()
+  if type(s:saved_line) == 1
+    call setline('.', s:saved_line)
+  endif
+  let s:saved_line = 0
+endfunction
+
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   let s:to_mode = ''
-
   if s:from_mode ==# 'v'
     " Exit visual mode so Vim's visual highlight does not take over
     call s:exit_visual_mode()
   endif
 
+  " Right before redraw, apply the highlighting bug fix
+  call s:apply_highlight_fix()
+
   redraw
+
+  " Immediately revert the change to leave the user's buffer unchanged
+  call s:revert_highlight_fix()
+
   let s:char = s:get_char()
 
   if s:exit()

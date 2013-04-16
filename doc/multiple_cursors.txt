@@ -147,8 +147,6 @@ like the following in your vimrc: >
 - Performance in terminal vim degrades significantly with more cursors
 - Select mode is not implemented
 - Buggy when wrap is turned on
-- Cursor highlighting is off. The last column on the same row as Vim's cursor
-  is not highlighted incorrectly. Setting virtualedit=all might help
 
 ==============================================================================
 6. Contributing                                *multiple-cursors-contributing* 
