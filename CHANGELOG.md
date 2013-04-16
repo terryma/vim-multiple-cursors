@@ -1,3 +1,8 @@
+## 1.6 (04/15/2013)
+
+Bugfixes:
+  - Stop chaining dictionary function calls. This fixes #10 and #11
+
 ## 1.5 (04/15/2013)
 
 Bugfixes:

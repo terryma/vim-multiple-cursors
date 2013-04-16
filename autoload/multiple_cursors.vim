@@ -365,9 +365,12 @@ function! s:CursorManager.update_current() dict
       let new_line_length = len(getline('.'))
       for i in range(self.current_index+1, self.size()-1)
         let hdelta = 0
+        " Note: some versions of Vim don't like chaining function calls like
+        " a.b().c(). For compatibility reasons, don't do it
+        let c = self.get(i)
         " If there're other cursors on the same line, we need to adjust their
         " columns. This needs to happen before we adjust their line!
-        if cur.line() == self.get(i).line()
+        if cur.line() == c.line()
           if vdelta > 0
             " Added a line
             let hdelta = cur_line_length * -1
@@ -376,7 +379,7 @@ function! s:CursorManager.update_current() dict
             let hdelta = new_line_length
           endif
         endif
-        call self.get(i).move(vdelta, hdelta)
+        call c.move(vdelta, hdelta)
       endfor
     endif
   else
@@ -389,9 +392,10 @@ function! s:CursorManager.update_current() dict
       " the same line
       if self.current_index != self.size() - 1
         for i in range(self.current_index+1, self.size()-1)
+          let c = self.get(i)
           " Only do it for cursors on the same line
-          if cur.line() == self.get(i).line()
-            call self.get(i).move(0, hdelta)
+          if cur.line() == c.line()
+            call c.move(0, hdelta)
           else
             " Early exit, if we're not on the same line, neither will any cursor
             " that come after this
