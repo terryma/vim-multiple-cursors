@@ -33,7 +33,6 @@ let s:settings = {
       \ }
 
 let s:settings_if_default = {
-      \ 'start_key': '<C-n>',
       \ 'quit_key': '<Esc>',
       \ 'next_key': '<C-n>',
       \ 'prev_key': '<C-p>',
@@ -44,6 +43,9 @@ call s:init_settings(s:settings)
 
 if g:multi_cursor_use_default_mapping
   call s:init_settings(s:settings_if_default)
+  if !exists('g:multi_cursor_start_key')
+    let g:multi_cursor_start_key = g:multi_cursor_next_key
+  endif
 endif
 
 " External mappings
