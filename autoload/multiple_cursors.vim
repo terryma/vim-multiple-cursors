@@ -69,11 +69,6 @@ nnoremap <silent> <Plug>(n) :<C-u>call multiple_cursors#new('v')<CR>
 " Public Functions
 "===============================================================================
 
-" Reset everything the plugin has done
-function! multiple_cursors#reset()
-  call s:cm.reset()
-endfunction
-
 " Print some debugging info
 function! multiple_cursors#debug()
   call s:cm.debug()
@@ -90,15 +85,15 @@ endfunction
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode)
   if a:mode ==# 'n'
-    " Reset all existing cursors
-    call s:cm.reset()
+    " Reset all existing cursors, don't restore view
+    call s:cm.reset(0)
 
     " Select the word under cursor to set the '< and '> marks
-    exec "normal! viw\<Esc>"
-    normal! gv
+    exec "normal! viw"
+    call s:exit_visual_mode()
 
-    call s:create_cursor_from_visual_selection()
-
+    " Add cursor with the current visual selection
+    call s:cm.add(s:pos("'>"), s:region("'<", "'>"))
     call s:wait_for_user_input('v')
   elseif a:mode ==# 'v'
     " If the visual area covers the same line, then do a search for next
@@ -106,58 +101,58 @@ function! multiple_cursors#new(mode)
     let start = line("'<")
     let finish = line("'>")
     if start != finish
-      call s:cm.reset()
+      call s:cm.reset(0)
+      let col = col("'<")
       for line in range(line("'<"), line("'>"))
-        call cursor(line, col("'<"))
-        call s:cm.add()
+        let pos = [line, col]
+        call s:cm.add(pos)
       endfor
       " Start in normal mode
       call s:wait_for_user_input('n')
     else
+      " Save the '< and '> marks
+      call s:exit_visual_mode()
+
       " Came directly from visual mode
       if s:cm.is_empty()
-        call s:create_cursor_from_visual_selection()
-        call s:exit_visual_mode()
+        call s:cm.reset(0)
+        if visualmode() ==# 'V'
+          let left = [line('.'), 1]
+          let right = [line('.'), col('$')-1]
+          if right[1] == 0 " empty line
+            return
+          endif
+          call s:cm.add(right, [left, right])
+        else 
+          call s:cm.add(s:pos("'>"), s:region("'<", "'>"))
+        endif
       endif
-      " Select the next ocurrence
-      call s:select_next_occurrence(s:get_visual_selection())
-      " Try to place a cursor there, reselect old cursor if fails
-      if !s:cm.add()
-        call s:exit_visual_mode()
-        " Adding cursor failed, this mean the new cursor is already added
-        call s:cm.reapply_visual_selection()
-      endif
+      let content = s:get_text(s:region("'<", "'>"))
+      let next = s:find_next(content)
+      call s:cm.add(next[1], next)
+      call s:update_visual_markers(next)
       call s:wait_for_user_input('v')
     endif
   endif
 endfunction
 
-" Delete the current cursor and move Vim's cursor back to the previous cursor
+" Delete the current cursor. If there's no more cursors, stop the loop
 function! multiple_cursors#prev()
-  if s:cm.is_empty()
-    normal! gv
-    return
-  endif
   call s:cm.delete_current()
-  " If that was the last cursor, go back to normal mode
-  if s:cm.is_empty()
-    call s:exit_visual_mode()
-    call s:cm.reset()
-  else
-    call s:cm.reapply_visual_selection()
+  if !s:cm.is_empty()
+    call s:update_visual_markers(s:cm.get_current().visual)
+    call cursor(s:cm.get_current().position)
     call s:wait_for_user_input('v')
   endif
 endfunction
 
 " Skip the current cursor and move to the next cursor
 function! multiple_cursors#skip()
-  if s:cm.is_empty()
-    normal! gv
-    return
-  endif
   call s:cm.delete_current()
-  call s:select_next_occurrence(s:get_visual_selection())
-  call s:cm.add()
+  let content = s:get_text(s:region("'<", "'>"))
+  let next = s:find_next(content)
+  call s:cm.add(next[1], next)
+  call s:update_visual_markers(next)
   call s:wait_for_user_input('v')
 endfunction
 
@@ -169,41 +164,42 @@ let s:Cursor = {}
 " Create a new cursor. Highlight it and save the current line length
 function! s:Cursor.new(position)
   let obj = copy(self)
-  let obj.position = a:position
+  let obj.position = copy(a:position)
   let obj.visual = []
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
-  let obj.line_length = col([a:position[1], '$'])
+  let obj.line_length = col([a:position[0], '$'])
   return obj
 endfunction
 
 " Return the line the cursor is on
 function! s:Cursor.line() dict
-  return self.position[1]
+  return self.position[0]
 endfunction
 
 " Return the column the cursor is on
 function! s:Cursor.column() dict
-  return self.position[2]
+  return self.position[1]
 endfunction
 
 " Move the cursor location by the number of lines and columns specified in the
 " input. The input can be negative.
 function! s:Cursor.move(line, column) dict
-  let self.position[1] += a:line
-  let self.position[2] += a:column
+  let self.position[0] += a:line
+  let self.position[1] += a:column
   if !empty(self.visual)
-    let self.visual[0][1] += a:line
-    let self.visual[0][2] += a:column
-    let self.visual[1][1] += a:line
-    let self.visual[1][2] += a:column
+    let self.visual[0][0] += a:line
+    let self.visual[0][1] += a:column
+    let self.visual[1][0] += a:line
+    let self.visual[1][1] += a:column
   endif
   call self.update_highlight()
 endfunction
 
 " Update the current position of the cursor
 function! s:Cursor.update_position(pos) dict
-  let self.position = a:pos
+  let self.position[0] = a:pos[0]
+  let self.position[1] = a:pos[1]
   call self.update_highlight()
 endfunction
 
@@ -221,7 +217,7 @@ endfunction
 
 " Update the visual selection and its highlight
 function! s:Cursor.update_visual_selection(region) dict
-  let self.visual = a:region
+  let self.visual = deepcopy(a:region)
   call s:cm.remove_highlight(self.visual_hi_id)
   let self.visual_hi_id = s:highlight_region(a:region)
 endfunction
@@ -259,30 +255,33 @@ function! s:CursorManager.new()
 endfunction
 
 " Clear all cursors and their highlights
-function! s:CursorManager.reset() dict
-  " Return the view back to the beginning
-  if !empty(self.saved_winview)
-    call winrestview(self.saved_winview)
-    let self.saved_winview = []
-  endif
+function! s:CursorManager.reset(restore_view) dict
+  if a:restore_view
+    " Return the view back to the beginning
+    if !empty(self.saved_winview)
+      call winrestview(self.saved_winview)
+    endif
 
-  " If the cursor moved, just restoring the view could get confusing, let's
-  " put the cursor at where the user left it
-  if !self.is_empty()
-    call setpos('.', self.get(0).position)
+    " If the cursor moved, just restoring the view could get confusing, let's
+    " put the cursor at where the user left it
+    if !self.is_empty()
+      call cursor(self.get(0).position)
+    endif
   endif
 
   " Delete all cursors and clear their highlights. Don't do clearmatches() as
   " that will potentially interfere with other plugins
   if !self.is_empty()
-    for i in range(1, self.size())
-      call self.delete_current()
+    for i in range(self.size())
+      call self.remove_highlight(self.get(i).cursor_hi_id)
+      call self.remove_highlight(self.get(i).visual_hi_id)
     endfor
   endif
 
   let self.cursors = []
   let self.current_index = -1
   let self.starting_index = -1
+  let self.saved_winview = []
   call self.restore_user_settings()
 
   " FIXME(terryma): Doesn't belong here
@@ -331,18 +330,17 @@ endfunction
 function! s:CursorManager.debug() dict
   let i = 0
   for c in self.cursors
-    echom 'cursor #'.i.': '.string(c)
+    echom 'cursor #'.i.': pos='.string(c.position).' visual='.string(c.visual)
     let i+=1
   endfor
-  echom 'last key = '.s:char
-  echom 'current cursor = '.self.current_index
-  echom 'current pos = '.string(getpos('.'))
-  echom 'last visual begin = '.string(getpos("'<"))
-  echom 'last visual end = '.string(getpos("'>"))
-  echom 'current mode = '.mode()
-  echom 'current mode custom = '.s:to_mode
-  echom 'prev mode custom = '.s:from_mode
-  echom 'special keys = '.string(s:special_keys)
+  echom 'input = '.s:char
+  echom 'index = '.self.current_index
+  echom 'pos = '.string(s:pos('.'))
+  echom '''< = '.string(s:pos("'<"))
+  echom '''> = '.string(s:pos("'>"))
+  echom 'to mode = '.s:to_mode
+  echom 'from mode = '.s:from_mode
+  " echom 'special keys = '.string(s:special_keys)
   echom ' '
 endfunction
 
@@ -352,7 +350,9 @@ endfunction
 function! s:CursorManager.update_current() dict
   let cur = self.get_current()
   if s:to_mode ==# 'v'
-    call cur.update_visual_selection(s:get_current_visual_selection())
+    " Sets the cursor at the right place
+    call s:exit_visual_mode()
+    call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
     call s:exit_visual_mode()
   else
     call cur.remove_visual_selection()
@@ -407,7 +407,7 @@ function! s:CursorManager.update_current() dict
     endif
   endif
 
-  let pos = getpos('.')
+  let pos = s:pos('.')
   if cur.position == pos
     return 0
   endif
@@ -454,37 +454,38 @@ function! s:CursorManager.reapply_visual_selection() dict
   call s:select_in_visual_mode(self.get_current().visual)
 endfunction
 
-" Creates a new multicursor at the current Vim cursor location. Return true if
-" the cursor has been successfully added, false otherwise
-function! s:CursorManager.add() dict
+" Creates a new virtual cursor as 'pos'
+" Optionally a 'region' object can be passed in as second argument. If set, the
+" visual region of the cursor will be set to it
+" Return true if the cursor has been successfully added, false otherwise
+" Mode change: Normal -> Normal
+" Cursor change: None (TODO Should we set Vim's cursor to pos?)
+function! s:CursorManager.add(pos, ...) dict
   " Lazy init
   if self.is_empty()
     call self.initialize()
   endif
 
-  let pos = getpos('.')
-
   " Don't add duplicates
   let i = 0
   for c in self.cursors
-    if c.position == pos
+    if c.position == a:pos
       return 0
     endif
     let i+=1
   endfor
 
-  let cursor = s:Cursor.new(pos)
+  let cursor = s:Cursor.new(a:pos)
 
   " Save the visual selection
-  if mode() ==# 'v'
-    call cursor.update_visual_selection(s:get_current_visual_selection())
+  if a:0 > 0
+    call cursor.update_visual_selection(a:1)
   endif
 
   call add(self.cursors, cursor)
   let self.current_index += 1
   return 1
 endfunction
-
 "===============================================================================
 " Variables
 "===============================================================================
@@ -506,11 +507,27 @@ let s:cm = s:CursorManager.new()
 " Utility functions
 "===============================================================================
 
+" Return the position of the input marker as a two element array. First element
+" is the line number, second element is the column number
+function! s:pos(mark)
+  let pos = getpos(a:mark)
+  return [pos[1], pos[2]]
+endfunction
+
+" Return the region covered by the input markers as a two element array. First
+" element is the position of the start marker, second element is the position of
+" the end marker
+function! s:region(start_mark, end_mark)
+  return [s:pos(a:start_mark), s:pos(a:end_mark)]
+endfunction
+
 " Exit visual mode and go back to normal mode
-" Precondition: In visual mode
-" Postcondition: In normal mode, cursor in the same location as visual mode
 " The reason for the additional gv\<Esc> is that it allows the cursor to stay
 " on where it was before exiting
+" Mode change: Normal -> Normal or Visual -> Normal
+" Cursor change: If in visual mode, changed to exactly where it was on screen in
+" visual mode. If in normal mode, changed to where the cursor was when the last
+" visual selection ended
 function! s:exit_visual_mode()
   exec "normal! \<Esc>gv\<Esc>"
 endfunction
@@ -520,18 +537,16 @@ endfunction
 " Typically m<, m>, and gv would be a simple way of accomplishing this, but on
 " some systems, the m< and m> marks are not supported. Note that v`` has random
 " behavior if `` is the same location as the cursor location.
-" Precondition: In normal mode
-" Postcondition: In visual mode, with the region selected
+" Mode change: Normal -> Visual
+" Cursor change: Set to end of region
+" TODO: Refactor this and s:update_visual_markers
 function! s:select_in_visual_mode(region)
-  " Exit visual mode first. If we're in visual mode, then the normal mode
-  " command executed later could interfere
-  call s:exit_visual_mode()
-
-  call setpos('.', a:region[0])
-  call setpos("'`", a:region[1])
-  if getpos('.') == getpos("'`")
+  if a:region[0] == a:region[1]
     normal! v
-  else
+  else 
+    call cursor(a:region[1])
+    normal! m`
+    call cursor(a:region[0])
     normal! v``
   endif
 
@@ -539,18 +554,45 @@ function! s:select_in_visual_mode(region)
   exec "normal! \<Esc>gv"
 endfunction
 
+" Update '< and '> to the input region
+" Mode change: Normal -> Normal
+" Cursor change: Set to the end of the region
+function! s:update_visual_markers(region)
+  if a:region[0] == a:region[1]
+    normal! v
+  else 
+    call cursor(a:region[1])
+    normal! m`
+    call cursor(a:region[0])
+    normal! v``
+  endif
+  call s:exit_visual_mode()
+endfunction
+
+" Finds the next occurrence of the input text in the current buffer.
+" Search is case sensitive
+" Mode change: Normal -> Normal
+" Cursor change: Set to the end of the match
+function! s:find_next(text)
+  let pattern = '\V\C'.substitute(escape(a:text, '\'), '\n', '\\n', 'g')
+  call search(pattern)
+  let start = s:pos('.')
+  call search(pattern, 'ce')
+  let end = s:pos('.')
+  return [start, end]
+endfunction
+
 " Highlight the position using the cursor highlight group
 function! s:highlight_cursor(pos)
   " Give cursor highlight high priority, to overrule visual selection
-  return matchadd(s:hi_group_cursor, '\%'.a:pos[1].'l\%'.a:pos[2].'v', 99999)
+  return matchadd(s:hi_group_cursor, '\%'.a:pos[0].'l\%'.a:pos[1].'v', 99999)
 endfunction
 
-" Compare two position arrays. Each input is the result of getpos(). Return a
-" negative value if lhs occurs before rhs, positive value if after, and 0 if
-" they are the same.
+" Compare two position arrays. Return a negative value if lhs occurs before rhs,
+" positive value if after, and 0 if they are the same.
 function! s:compare_pos(l, r)
   " If number lines are the same, compare columns
-  return a:l[1] ==# a:r[1] ? a:l[2] - a:r[2] : a:l[1] - a:r[1]
+  return a:l[0] ==# a:r[0] ? a:l[1] - a:r[1] : a:l[0] - a:r[0]
 endfunction
 
 " Highlight the area bounded by the input region. The logic here really stinks,
@@ -559,16 +601,16 @@ endfunction
 " multiple places.
 function! s:highlight_region(region)
   let s = sort(copy(a:region), "s:compare_pos")
-  if (s[0][1] == s[1][1]) 
+  if (s[0][0] == s[1][0]) 
     " Same line
-    let pattern = '\%'.s[0][1].'l\%>'.(s[0][2]-1).'v.*\%<'.(s[1][2]+1).'v.'
+    let pattern = '\%'.s[0][0].'l\%>'.(s[0][1]-1).'v.*\%<'.(s[1][1]+1).'v.'
   else
     " Two lines
-    let s1 = '\%'.s[0][1].'l.\%>'.s[0][2].'v.*'
-    let s2 = '\%'.s[1][1].'l.*\%<'.s[1][2].'v..'
+    let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'v.*'
+    let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'v..'
     let pattern = s1.'\|'.s2
-    if (s[1][1] - s[0][1] > 1)
-      let pattern = pattern.'\|\%>'.s[0][1].'l\%<'.s[1][1].'l' 
+    if (s[1][0] - s[0][0] > 1)
+      let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l' 
     endif
   endif
   return matchadd(s:hi_group_visual, pattern)
@@ -614,7 +656,7 @@ function! s:process_user_inut(mode)
   " Grr this is frustrating. In Insert mode, between the feedkey call and here,
   " the current position could actually CHANGE for some odd reason. Forcing a
   " position reset here
-  call setpos('.', s:cm.get_current().position)
+  call cursor(s:cm.get_current().position)
 
   " Before applying the user input, we need to revert back to the mode the user
   " was in when the input was entered
@@ -642,13 +684,13 @@ function! s:apply_user_input_next(mode)
   call s:cm.next()
 
   " Update Vim's cursor
-  call setpos('.', s:cm.get_current().position)
+  call cursor(s:cm.get_current().position)
 
   " We're done if we're made the full round
   if s:cm.loop_done()
     if s:to_mode ==# 'v'
       " This is necessary to set the "'<" and "'>" markers properly
-      call s:cm.reapply_visual_selection()
+      call s:update_visual_markers(s:cm.get_current().visual)
     endif
     call s:wait_for_user_input(s:to_mode)
   else
@@ -657,61 +699,28 @@ function! s:apply_user_input_next(mode)
   endif
 endfunction
 
-" Precondition: In visual mode with selected text
-" Postcondition: A new cursor is placed at the end of the selected text
-function! s:create_cursor_from_visual_selection()
-  " Get the text for the current visual selection
-  let selection = s:get_visual_selection()
-
-  " Go to the end of the visual selection
-  call cursor(line("'<"), col("'>"))
-
-  " Add the current at the new location
-  call s:cm.add()
-endfunction
-
-" Precondition: In visual mode
-" Postcondition: Remain in visual mode
-" Return array of start and end position of visual selection
-" This should be available from the '< and '> registers, but it fails to work
-" correctly on some systems until visual mode quits. So we force quitting in
-" visual mode and reselecting the region afterwards
-function! s:get_current_visual_selection()
-  call s:exit_visual_mode()
-  let left = getpos("'<")
-  let right = getpos("'>")
-  if getpos('.') == left
+" If pos is equal to the left side of the visual selection, the region start
+" from end to start
+function! s:get_visual_region(pos)
+  let left = s:pos("'<")
+  let right = s:pos("'>")
+  if a:pos == left
     let region = [right, left]
   else
     let region = [left, right]
   endif
-  call s:select_in_visual_mode(region)
   return region
 endfunction
 
-" Return the content of the current visual selection. This is used to find the
-" next match in the buffer
-function! s:get_visual_selection()
-  normal! gv
-  let start_pos = getpos("'<")
-  let end_pos = getpos("'>")
-  let [lnum1, col1] = start_pos[1:2]
-  let [lnum2, col2] = end_pos[1:2]
-  let lines = getline(lnum1, lnum2)
-  let lines[-1] = lines[-1][: col2 - 1]
-  let lines[0] = lines[0][col1 - 1:]
+" Return the content of the buffer between the input region. This is used to
+" find the next match in the buffer
+" Mode change: Normal -> Normal
+" Cursor change: None
+function! s:get_text(region)
+  let lines = getline(a:region[0][0], a:region[1][0])
+  let lines[-1] = lines[-1][:a:region[1][1] - 1]
+  let lines[0] = lines[0][a:region[0][1] - 1:]
   return join(lines, "\n")
-endfunction
-
-" Visually select the next occurrence of the input text in the buffer
-function! s:select_next_occurrence(text)
-  call s:exit_visual_mode()
-  let pattern = '\V\C'.substitute(escape(a:text, '\'), '\n', '\\n', 'g')
-  call search(pattern)
-  let start = getpos('.')
-  call search(pattern, 'ce')
-  let end = getpos('.')
-  call s:select_in_visual_mode([start, end])
 endfunction
 
 " Wrapper around getchar() that returns the string representation of the user
@@ -737,7 +746,7 @@ function! s:exit()
     elseif s:from_mode ==# 'v'
       call s:exit_visual_mode()
     endif
-    call s:cm.reset()
+    call s:cm.reset(1)
     return 1
   endif
   return 0
@@ -786,10 +795,6 @@ endfunction
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   let s:to_mode = ''
-  if s:from_mode ==# 'v'
-    " Exit visual mode so Vim's visual highlight does not take over
-    call s:exit_visual_mode()
-  endif
 
   " Right before redraw, apply the highlighting bug fix
   call s:apply_highlight_fix()
