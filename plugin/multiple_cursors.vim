@@ -53,5 +53,9 @@ if exists('g:multi_cursor_next_key')
         \' :<C-u>call multiple_cursors#new("v")<CR>'
 endif
 
+" Commands
+command! -nargs=1 -range=% MultipleCursorsFind 
+      \ call multiple_cursors#find(<line1>, <line2>, <q-args>)
+
 let &cpo = s:save_cpo
 unlet s:save_cpo

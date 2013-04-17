@@ -156,6 +156,61 @@ function! multiple_cursors#skip()
   call s:wait_for_user_input('v')
 endfunction
 
+" Search for pattern between the start and end line number. For each match, add
+" a virtual cursor at the end and start multicursor mode
+" This function is called from a command. User commands in Vim do not support
+" passing in column ranges. If the user selects a block of text in visual mode,
+" but not visual line mode, we only want to match patterns within the actual
+" visual selection. We get around this by checking the last visual selection and
+" see if its start and end lines match the input. If so, we assume that the user
+" did a normal visual selection and we use the '< and '> marks to define the
+" region instead of start and end from the method parameter.
+function! multiple_cursors#find(start, end, pattern)
+  let s:cm.saved_winview = winsaveview()
+  let s:cm.start_from_find = 1
+  if visualmode() ==# 'v' && a:start == line("'<") && a:end == line("'>")
+    let pos1 = s:pos("'<")
+    let pos2 = s:pos("'>")
+  else
+    let pos1 = [a:start, 1]
+    let pos2 = [a:end, col([a:end, '$'])]
+  endif
+  call cursor(pos1)
+  let first = 1
+  while 1
+    if first
+      " First search starts from the current position
+      let match = search(a:pattern, 'cW')
+      let first = 0
+    else
+      let match = search(a:pattern, 'W')
+    endif
+    if !match
+      break
+    endif
+    let left = s:pos('.')
+    call search(a:pattern, 'ceW')
+    let right = s:pos('.')
+    if s:compare_pos(right, pos2) > 0
+      break
+    endif
+    call s:cm.add(right, [left, right])
+    " Redraw here forces the cursor movement to be updated. This prevents the
+    " jerky behavior when doing any action once the cursors are added. But it
+    " also slows down adding the cursors dramatically. We need to a better
+    " solution here
+    " redraw
+  endwhile
+  if s:cm.is_empty()
+    call winrestview(s:cm.saved_winview)
+    echohl ErrorMsg | echo 'No match found' | echohl None
+    return
+  else 
+    echohl Normal | echo 'Added '.s:cm.size().' cursor'.(s:cm.size()>1?'s':'')
+    call s:wait_for_user_input('v')
+  endif
+endfunction
+
 "===============================================================================
 " Cursor class
 "===============================================================================
@@ -248,9 +303,12 @@ function! s:CursorManager.new()
   let obj.saved_settings = {
         \ 'virtualedit': &virtualedit,
         \ 'cursorline': &cursorline,
+        \ 'lazyredraw': &lazyredraw,
         \ }
   " We save the window view when multicursor mode is entered
   let obj.saved_winview = []
+  " Track whether we started multicursor mode from calling multiple_cursors#find
+  let obj.start_from_find = 0
   return obj
 endfunction
 
@@ -263,8 +321,9 @@ function! s:CursorManager.reset(restore_view) dict
     endif
 
     " If the cursor moved, just restoring the view could get confusing, let's
-    " put the cursor at where the user left it
-    if !self.is_empty()
+    " put the cursor at where the user left it. Only do this if we didn't start
+    " from find mode
+    if !self.is_empty() && !self.start_from_find
       call cursor(self.get(0).position)
     endif
   endif
@@ -282,6 +341,7 @@ function! s:CursorManager.reset(restore_view) dict
   let self.current_index = -1
   let self.starting_index = -1
   let self.saved_winview = []
+  let self.start_from_find = 0
   call self.restore_user_settings()
 
   " FIXME(terryma): Doesn't belong here
@@ -435,10 +495,16 @@ endfunction
 " virtualedit needs to be set to onemore for updates to work correctly
 " cursorline needs to be turned off for the cursor highlight to work on the line
 " where the real vim cursor is
+" lazyredraw needs to be turned on to prevent jerky screen behavior with many
+" cursors on screen
 function! s:CursorManager.initialize() dict
   let &virtualedit = "onemore"
   let &cursorline = 0
-  let self.saved_winview = winsaveview()
+  let &lazyredraw = 1
+  " We could have already saved the view from multiple_cursors#find
+  if !self.start_from_find
+    let self.saved_winview = winsaveview()
+  endif
 endfunction
 
 " Restore user settings.
@@ -446,6 +512,7 @@ function! s:CursorManager.restore_user_settings() dict
   if !empty(self.saved_settings)
     let &virtualedit = self.saved_settings['virtualedit']
     let &cursorline = self.saved_settings['cursorline']
+    let &lazyredraw = self.saved_settings['lazyredraw']
   endif
 endfunction
 
@@ -540,6 +607,8 @@ endfunction
 " Mode change: Normal -> Visual
 " Cursor change: Set to end of region
 " TODO: Refactor this and s:update_visual_markers
+" FIXME: By using m` we're destroying the user's jumplist. We should use a
+" different mark and use :keepjump
 function! s:select_in_visual_mode(region)
   if a:region[0] == a:region[1]
     normal! v
@@ -609,6 +678,7 @@ function! s:highlight_region(region)
     let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'v.*'
     let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'v..'
     let pattern = s1.'\|'.s2
+    " More than two lines
     if (s[1][0] - s[0][0] > 1)
       let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l' 
     endif
@@ -626,11 +696,6 @@ function! s:revert_mode(from, to)
   endif
   if a:to ==# 'n' && a:from ==# 'i'
     stopinsert
-  endif
-  if a:to ==# 'n' && a:from ==# 'v'
-    " TODO(terryma): Hmm this would cause visual to normal mode to break.
-    " Strange
-    " call s:exit_visual_mode()
   endif
 endfunction
 

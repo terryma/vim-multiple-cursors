@@ -1,3 +1,12 @@
+## 1.10 (04/17/2013)
+
+Bugfixes:
+  - `O` works now in normal mode. This fixes #24
+  - Turn on `lazyredraw` during multicursor mode to prevent the sluggish screen redraws
+
+Features:
+  - Add command **MultipleCursorsFind** to add multiple virtual cursors using regexp. This closes #20
+
 ## 1.9 (04/17/2013)
 
 Bugfixes:

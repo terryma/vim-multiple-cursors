@@ -61,6 +61,11 @@ CTRL-X in Visual mode will remove the current virtual cursor and skip to the
 next virtual cursor location. This is useful if you don't want the current
 selection to be a candidate to operate on later.
 
+You can also add multiple cursors using a regular expression. The command
+*MultipleCursorsFind* accepts a range and a pattern, and it will create a
+virtual cursor at the end of every match within the range. If no range is
+passed in, then it defaults to the entire buffer.
+
 NOTE: The plugin is still somewhat buggy, if at any time you have
 lingering cursors on screen, you can press CTRL-N in Normal mode and it will
 remove all prior cursors before starting a new one.
