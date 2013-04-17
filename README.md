@@ -12,6 +12,9 @@
 ### Do it backwards too! This is not just a replay of the above gif :)
 ![Example3](assets/example3.gif?raw=true)
 
+### Add multiple cursors using regexes
+![Example4](assets/example4.gif?raw=true)
+
 To see what keystrokes are used for the above example, see [this issue](https://github.com/terryma/vim-multiple-cursors/issues/12).
 
 ## Features
@@ -32,6 +35,8 @@ At any time, you can press `<Esc>` to exit back to regular Vim.
 Two additional keys are also mapped:
 - `Ctrl-p` in Visual mode will remove the current virtual cursor and go back to the previous virtual cursor location. This is useful if you are trigger happy with `Ctrl-n` and accidentally went too far.
 - `Ctrl-x` in Visual mode will remove the current virtual cursor and skip to the next virtual cursor location. This is useful if you don't want the current selection to be a candidate to operate on later.
+
+You can also add multiple cursors using a regular expression. The command `MultipleCursorsFind` accepts a range and a pattern, and it will create a virtual cursor at the end of every match within the range. If no range is passed in, then it defaults to the entire buffer.  
 
 **NOTE:** The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 
