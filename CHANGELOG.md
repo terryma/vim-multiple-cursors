@@ -1,3 +1,9 @@
+## 1.9 (04/17/2013)
+
+Bugfixes:
+  - Fix starting multicursor mode in visual line mode. This fixes #25
+  - Major refactoring get avoid getting in and out of visual mode as much as possible
+
 ## 1.8 (04/16/2013)
 
 Bugfixes:
