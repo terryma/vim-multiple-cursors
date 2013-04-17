@@ -357,10 +357,10 @@ function! s:CursorManager.update_current() dict
   else
     call cur.remove_visual_selection()
   endif
-
   let vdelta = line('$') - s:saved_linecount
-  " If the cursor changed line, and the total number of lines changed
-  if vdelta != 0 && cur.line() != line('.')
+  " If the total number of lines changed in the buffer, we need to potentially
+  " adjust other cursor locations
+  if vdelta != 0
     if self.current_index != self.size() - 1
       let cur_line_length = len(getline(cur.line()))
       let new_line_length = len(getline('.'))
