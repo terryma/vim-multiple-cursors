@@ -77,9 +77,10 @@ call s:init_settings(s:settings)
 
 if g:multi_cursor_use_default_mapping
   call s:init_settings(s:settings_if_default)
-  if !exists('g:multi_cursor_start_key')
-    let g:multi_cursor_start_key = g:multi_cursor_next_key
-  endif
+endif
+
+if !exists('g:multi_cursor_start_key') && exists('g:multi_cursor_next_key')
+  let g:multi_cursor_start_key = g:multi_cursor_next_key
 endif
 
 " External mappings
