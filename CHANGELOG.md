@@ -1,3 +1,9 @@
+## 1.11 (04/18/2013)
+
+Bugfixes:
+  - Fix regression where `C-n` doesn't exhibit correct behavior when all matches have been found
+  - Clear echo messages when a new input is received
+
 ## 1.10 (04/17/2013)
 
 Bugfixes:
