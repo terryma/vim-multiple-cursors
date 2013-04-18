@@ -129,8 +129,12 @@ function! multiple_cursors#new(mode)
       endif
       let content = s:get_text(s:region("'<", "'>"))
       let next = s:find_next(content)
-      call s:cm.add(next[1], next)
-      call s:update_visual_markers(next)
+      if s:cm.add(next[1], next)
+        call s:update_visual_markers(next)
+      else
+        call cursor(s:cm.get_current().position)
+        echohl WarningMsg | echo 'No more matches' | echohl None
+      endif
       call s:wait_for_user_input('v')
     endif
   endif
@@ -206,7 +210,7 @@ function! multiple_cursors#find(start, end, pattern)
     echohl ErrorMsg | echo 'No match found' | echohl None
     return
   else 
-    echohl Normal | echo 'Added '.s:cm.size().' cursor'.(s:cm.size()>1?'s':'')
+    echohl Normal | echo 'Added '.s:cm.size().' cursor'.(s:cm.size()>1?'s':'') | echohl None
     call s:wait_for_user_input('v')
   endif
 endfunction
@@ -870,6 +874,9 @@ function! s:wait_for_user_input(mode)
   call s:revert_highlight_fix()
 
   let s:char = s:get_char()
+
+  " Clears any echoes we might've added
+  normal! :<Esc>
 
   if s:exit()
     return
