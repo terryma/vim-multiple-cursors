@@ -55,7 +55,7 @@ let g:multi_cursor_skip_key='<C-x>'
 let g:multi_cursor_quit_key='<Esc>'
 ```
 
-**IMPORTANT:** Please note that currently only single keystroes and special keys can be mapped. This contraint is also the reason why multikey commands such as `ciw` do not work and cause unexpected behavior in Normal mode. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
+**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This contraint is also the reason why multikey commands such as `ciw` do not work and cause unexpected behavior in Normal mode. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
 
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
