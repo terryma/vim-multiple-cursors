@@ -1,3 +1,8 @@
+## 1.12 (04/19/2013)
+
+Bugfixes:
+  - Fix tab character causing highlight errors. This fixes #18 and fixes #32
+
 ## 1.11 (04/18/2013)
 
 Bugfixes:

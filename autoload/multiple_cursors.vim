@@ -351,6 +351,7 @@ function! s:CursorManager.reset(restore_view) dict
   " FIXME(terryma): Doesn't belong here
   let s:from_mode = ''
   let s:to_mode = ''
+  let s:visualmode = ''
 endfunction
 
 " Returns 0 if it's not managing any cursors at the moment
@@ -404,6 +405,7 @@ function! s:CursorManager.debug() dict
   echom '''> = '.string(s:pos("'>"))
   echom 'to mode = '.s:to_mode
   echom 'from mode = '.s:from_mode
+  echom 'visual mode = '.s:visualmode
   " echom 'special keys = '.string(s:special_keys)
   echom ' '
 endfunction
@@ -567,6 +569,8 @@ let s:char = ''
 let s:from_mode = ''
 " This is the mode the user is in after s:char
 let s:to_mode = ''
+" If s:to_mode is 'v', this tells us what kind of visual mode the user was in
+let s:visualmode = ''
 " This is the total number of lines in the buffer before processing s:char
 let s:saved_linecount = -1
 " This is used to apply the highlight fix. See s:apply_highight_fix()
@@ -658,7 +662,7 @@ endfunction
 " Highlight the position using the cursor highlight group
 function! s:highlight_cursor(pos)
   " Give cursor highlight high priority, to overrule visual selection
-  return matchadd(s:hi_group_cursor, '\%'.a:pos[0].'l\%'.a:pos[1].'v', 99999)
+  return matchadd(s:hi_group_cursor, '\%'.a:pos[0].'l\%'.a:pos[1].'c', 99999)
 endfunction
 
 " Compare two position arrays. Return a negative value if lhs occurs before rhs,
@@ -676,11 +680,11 @@ function! s:highlight_region(region)
   let s = sort(copy(a:region), "s:compare_pos")
   if (s[0][0] == s[1][0]) 
     " Same line
-    let pattern = '\%'.s[0][0].'l\%>'.(s[0][1]-1).'v.*\%<'.(s[1][1]+1).'v.'
+    let pattern = '\%'.s[0][0].'l\%>'.(s[0][1]-1).'c.*\%<'.(s[1][1]+1).'c.'
   else
     " Two lines
-    let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'v.*'
-    let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'v..'
+    let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'c.*'
+    let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'c..'
     let pattern = s1.'\|'.s2
     " More than two lines
     if (s[1][0] - s[0][0] > 1)
@@ -738,6 +742,7 @@ function! s:process_user_inut(mode)
 
   " Apply the user input. Note that the above could potentially change mode, we
   " use the mapping below to help us determine what the new mode is
+  " FIXME(terryma): It's possible that \<Plug>(a) never gets called
   call s:feedkeys(s:char."\<Plug>(a)")
 endfunction
 
@@ -745,6 +750,8 @@ endfunction
 function! s:apply_user_input_next(mode)
   " Save the current mode
   let s:to_mode = a:mode
+
+  let s:visualmode = visualmode()
 
   " Update the current cursor's information
   let changed = s:cm.update_current()
