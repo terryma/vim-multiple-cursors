@@ -45,11 +45,15 @@ if g:multi_cursor_use_default_mapping
   call s:init_settings(s:settings_if_default)
 endif
 
+if !exists('g:multi_cursor_start_key') && exists('g:multi_cursor_next_key')
+  let g:multi_cursor_start_key = g:multi_cursor_next_key
+endif
+
 " External mappings
-if exists('g:multi_cursor_next_key')
-  exec 'nnoremap <silent> '.g:multi_cursor_next_key.
+if exists('g:multi_cursor_start_key')
+  exec 'nnoremap <silent> '.g:multi_cursor_start_key.
         \' :call multiple_cursors#new("n")<CR>'
-  exec 'xnoremap <silent> '.g:multi_cursor_next_key.
+  exec 'xnoremap <silent> '.g:multi_cursor_start_key.
         \' :<C-u>call multiple_cursors#new("v")<CR>'
 endif
 
