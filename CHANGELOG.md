@@ -1,3 +1,9 @@
+## 1.13 (04/22/2013)
+
+Bugfixes:
+  - Add support for switching to visual line mode from inside multicursor mode
+  - Fix highlight issue where extra character at end of line is highlighted for visual selections covering more than 2 lines.
+
 ## 1.12 (04/19/2013)
 
 Bugfixes:

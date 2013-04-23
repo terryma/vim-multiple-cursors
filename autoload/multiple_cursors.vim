@@ -50,9 +50,9 @@ endif
 " Internal Mappings
 "===============================================================================
 
-inoremap <silent> <Plug>(i) <C-o>:call <SID>process_user_inut('i')<CR>
-nnoremap <silent> <Plug>(i) :call <SID>process_user_inut('n')<CR>
-xnoremap <silent> <Plug>(i) :<C-u>call <SID>process_user_inut('v')<CR>
+inoremap <silent> <Plug>(i) <C-o>:call <SID>process_user_inut()<CR>
+nnoremap <silent> <Plug>(i) :call <SID>process_user_inut()<CR>
+xnoremap <silent> <Plug>(i) :<C-u>call <SID>process_user_inut()<CR>
 
 inoremap <silent> <Plug>(a) <C-o>:call <SID>apply_user_input_next('i')<CR>
 nnoremap <silent> <Plug>(a) :call <SID>apply_user_input_next('n')<CR>
@@ -347,11 +347,6 @@ function! s:CursorManager.reset(restore_view) dict
   let self.saved_winview = []
   let self.start_from_find = 0
   call self.restore_user_settings()
-
-  " FIXME(terryma): Doesn't belong here
-  let s:from_mode = ''
-  let s:to_mode = ''
-  let s:visualmode = ''
 endfunction
 
 " Returns 0 if it's not managing any cursors at the moment
@@ -405,7 +400,6 @@ function! s:CursorManager.debug() dict
   echom '''> = '.string(s:pos("'>"))
   echom 'to mode = '.s:to_mode
   echom 'from mode = '.s:from_mode
-  echom 'visual mode = '.s:visualmode
   " echom 'special keys = '.string(s:special_keys)
   echom ' '
 endfunction
@@ -415,7 +409,13 @@ endfunction
 " position changed, false otherwise
 function! s:CursorManager.update_current() dict
   let cur = self.get_current()
-  if s:to_mode ==# 'v'
+  if s:to_mode ==# 'v' || s:to_mode ==# 'V'
+    " If we're in visual line mode, we need to go to visual mode before we can
+    " update the visual region
+    if s:to_mode ==# 'V'
+      normal! gvv
+    endif
+
     " Sets the cursor at the right place
     call s:exit_visual_mode()
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
@@ -569,8 +569,6 @@ let s:char = ''
 let s:from_mode = ''
 " This is the mode the user is in after s:char
 let s:to_mode = ''
-" If s:to_mode is 'v', this tells us what kind of visual mode the user was in
-let s:visualmode = ''
 " This is the total number of lines in the buffer before processing s:char
 let s:saved_linecount = -1
 " This is used to apply the highlight fix. See s:apply_highight_fix()
@@ -678,17 +676,21 @@ endfunction
 " multiple places.
 function! s:highlight_region(region)
   let s = sort(copy(a:region), "s:compare_pos")
-  if (s[0][0] == s[1][0]) 
-    " Same line
-    let pattern = '\%'.s[0][0].'l\%>'.(s[0][1]-1).'c.*\%<'.(s[1][1]+1).'c.'
+  if s:to_mode ==# 'V'
+    let pattern = '\%>'.(s[0][0]-1).'l\%<'.(s[1][0]+1).'l.*\ze.\_$'
   else
-    " Two lines
-    let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'c.*'
-    let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'c..'
-    let pattern = s1.'\|'.s2
-    " More than two lines
-    if (s[1][0] - s[0][0] > 1)
-      let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l' 
+    if (s[0][0] == s[1][0])
+      " Same line
+      let pattern = '\%'.s[0][0].'l\%>'.(s[0][1]-1).'c.*\%<'.(s[1][1]+1).'c.'
+    else
+      " Two lines
+      let s1 = '\%'.s[0][0].'l.\%>'.s[0][1].'c.*'
+      let s2 = '\%'.s[1][0].'l.*\%<'.s[1][1].'c..'
+      let pattern = s1.'\|'.s2
+      " More than two lines
+      if (s[1][0] - s[0][0] > 1)
+        let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l.*\ze.\_$' 
+      endif
     endif
   endif
   return matchadd(s:hi_group_visual, pattern)
@@ -698,6 +700,10 @@ endfunction
 function! s:revert_mode(from, to)
   if a:to ==# 'v'
     call s:cm.reapply_visual_selection()
+  endif
+  if a:to ==# 'V'
+    call s:cm.reapply_visual_selection()
+    normal! V
   endif
   if a:to ==# 'i'
     startinsert
@@ -725,7 +731,7 @@ function! s:feedkeys(keys)
 endfunction
 
 " Take the user input and apply it at every cursor
-function! s:process_user_inut(mode)
+function! s:process_user_inut()
   " Grr this is frustrating. In Insert mode, between the feedkey call and here,
   " the current position could actually CHANGE for some odd reason. Forcing a
   " position reset here
@@ -748,10 +754,15 @@ endfunction
 
 " Apply the user input at the next cursor location
 function! s:apply_user_input_next(mode)
-  " Save the current mode
-  let s:to_mode = a:mode
-
-  let s:visualmode = visualmode()
+  " Save the current mode, only if we haven't already
+  if empty(s:to_mode)
+    let s:to_mode = a:mode
+    if s:to_mode ==# 'v'
+      if visualmode() ==# 'V'
+        let s:to_mode = 'V'
+      endif
+    endif
+  endif
 
   " Update the current cursor's information
   let changed = s:cm.update_current()
@@ -764,14 +775,14 @@ function! s:apply_user_input_next(mode)
 
   " We're done if we're made the full round
   if s:cm.loop_done()
-    if s:to_mode ==# 'v'
+    if s:to_mode ==# 'v' || s:to_mode ==# 'V'
       " This is necessary to set the "'<" and "'>" markers properly
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
     call s:wait_for_user_input(s:to_mode)
   else
     " Continue to next
-    call s:process_user_inut(s:from_mode)
+    call s:process_user_inut()
   endif
 endfunction
 
@@ -813,15 +824,22 @@ endfunction
 " Quits multicursor mode and clears all cursors. Return true if exited
 " successfully.
 function! s:exit()
-  if s:char ==# g:multi_cursor_quit_key &&
-        \ (s:from_mode ==# 'n' ||
-        \ s:from_mode ==# 'v' && g:multi_cursor_exit_from_visual_mode ||
-        \ s:from_mode ==# 'i' && g:multi_cursor_exit_from_insert_mode)
-    if s:from_mode ==# 'i'
-      stopinsert
-    elseif s:from_mode ==# 'v'
-      call s:exit_visual_mode()
-    endif
+  if s:char !=# g:multi_cursor_quit_key
+    return 0
+  endif
+  let exit = 0
+  if s:from_mode ==# 'n'
+    let exit = 1
+  elseif (s:from_mode ==# 'v' || s:from_mode ==# 'V') &&
+        \ g:multi_cursor_exit_from_visual_mode
+    " This isn't strictly necessary, but good to do nonetheless
+    call s:exit_visual_mode()
+    let exit = 1
+  elseif s:from_mode ==# 'i' && g:multi_cursor_exit_from_insert_mode
+    stopinsert
+    let exit = 1
+  endif
+  if exit
     call s:cm.reset(1)
     return 1
   endif
