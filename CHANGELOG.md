@@ -1,3 +1,8 @@
+## 1.14 (04/22/2013)
+
+Features:
+  - Allow users to separate start key from next key. (credit: @xanderman)
+
 ## 1.13 (04/22/2013)
 
 Bugfixes:
@@ -28,7 +33,7 @@ Features:
 
 Bugfixes:
   - Fix starting multicursor mode in visual line mode. This fixes #25
-  - Major refactoring get avoid getting in and out of visual mode as much as possible
+  - Major refactoring to avoid getting in and out of visual mode as much as possible
 
 ## 1.8 (04/16/2013)
 
