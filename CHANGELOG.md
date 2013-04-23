@@ -1,3 +1,8 @@
+## 1.15 (04/22/2013)
+
+Bugfixes:
+  - Fix plugin causing error bell. This fixes #29.
+
 ## 1.14 (04/22/2013)
 
 Features:

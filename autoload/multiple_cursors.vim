@@ -110,12 +110,10 @@ function! multiple_cursors#new(mode)
       " Start in normal mode
       call s:wait_for_user_input('n')
     else
-      " Save the '< and '> marks
-      call s:exit_visual_mode()
-
       " Came directly from visual mode
       if s:cm.is_empty()
         call s:cm.reset(0)
+
         if visualmode() ==# 'V'
           let left = [line('.'), 1]
           let right = [line('.'), col('$')-1]
@@ -413,13 +411,12 @@ function! s:CursorManager.update_current() dict
     " If we're in visual line mode, we need to go to visual mode before we can
     " update the visual region
     if s:to_mode ==# 'V'
-      normal! gvv
+      exec "normal! gvv\<Esc>"
     endif
 
     " Sets the cursor at the right place
-    call s:exit_visual_mode()
+    exec "normal! gv\<Esc>"
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
-    call s:exit_visual_mode()
   else
     call cur.remove_visual_selection()
   endif
@@ -832,8 +829,6 @@ function! s:exit()
     let exit = 1
   elseif (s:from_mode ==# 'v' || s:from_mode ==# 'V') &&
         \ g:multi_cursor_exit_from_visual_mode
-    " This isn't strictly necessary, but good to do nonetheless
-    call s:exit_visual_mode()
     let exit = 1
   elseif s:from_mode ==# 'i' && g:multi_cursor_exit_from_insert_mode
     stopinsert
