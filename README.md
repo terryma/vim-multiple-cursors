@@ -1,4 +1,4 @@
-# vim-multiple-cursors
+# vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.png)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
 ## About
 [There](https://github.com/paradigm/vim-multicursor) [have](https://github.com/felixr/vim-multiedit) [been](https://github.com/hlissner/vim-multiedit) [many](https://github.com/adinapoli/vim-markmultiple) [attempts](https://github.com/AndrewRadev/multichange.vim) at bringing Sublime Text's awesome [multiple selection][sublime-multiple-selection] feature into Vim, but none so far have been in my opinion a faithful port that is simplistic to use, yet powerful and intuitive enough for an existing Vim user. [vim-multiple-cursors] is yet another attempt at that.
