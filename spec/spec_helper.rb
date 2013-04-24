@@ -10,10 +10,10 @@ Vimrunner::RSpec.configure do |config|
   # Decide how to start a Vim instance. In this block, an instance should be
   # spawned and set up with anything project-specific.
   config.start_vim do
-    vim = Vimrunner.start
+    # vim = Vimrunner.start
 
     # Or, start a GUI instance:
-    # vim = Vimrunner.start_gvim
+    vim = Vimrunner.start_gvim
 
     # Setup your plugin in the Vim instance
     plugin_path = File.expand_path('../..', __FILE__)
