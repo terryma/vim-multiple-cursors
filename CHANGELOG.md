@@ -1,3 +1,8 @@
+## 1.16 (04/23/2013)
+
+Features:
+  - Add integration tests using vimrunner. Hook up travis-ci to run continous integration on commit.
+
 ## 1.15 (04/22/2013)
 
 Bugfixes:
