@@ -90,6 +90,22 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#new line in insert mode middle of line" do
+    before <<-EOF
+      hello world
+      hello world
+    EOF
+
+    type '<C-n><C-n>vlxi<cr><Esc>'
+
+    after <<-EOF
+      hello
+      world
+      hello
+      world
+    EOF
+  end
+
   specify "#normal mode 'o'" do
     before <<-EOF
       hello
@@ -148,6 +164,96 @@ describe "Multiple Cursors" do
     after <<-EOF
       hi!
       hi!
+    EOF
+  end
+
+  specify "#skip key" do
+    before <<-EOF
+      hello
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n><C-x>cworld<Esc>'
+
+    after <<-EOF
+      world
+      hello
+      world
+    EOF
+  end
+
+  specify "#prev key" do
+    before <<-EOF
+      hello
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n><C-n><C-p>cworld<Esc>'
+
+    after <<-EOF
+      world
+      world
+      hello
+    EOF
+  end
+
+  specify "#normal mode 'I'" do
+    before <<-EOF
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n>vIworld <Esc>'
+
+    after <<-EOF
+      world hello
+      world hello
+    EOF
+  end
+
+  specify "#normal mode 'A'" do
+    before <<-EOF
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n>vA world<Esc>'
+
+    after <<-EOF
+      hello world
+      hello world
+    EOF
+  end
+
+  specify "#undo" do
+    before <<-EOF
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n>cworld<Esc>u'
+
+    after <<-EOF
+      hello
+      hello
+    EOF
+  end
+
+  # 'd' is an operator pending command, which are not supported at the moment.
+  # This should result in a nop, but we should still remain in multicursor mode.
+  specify "#normal mode 'd'" do
+    before <<-EOF
+      hello
+      hello
+    EOF
+
+    type '<C-n><C-n>vdx<Esc>'
+
+    after <<-EOF
+      hell
+      hell
     EOF
   end
 end

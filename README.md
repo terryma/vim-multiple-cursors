@@ -38,7 +38,7 @@ Two additional keys are also mapped:
 
 You can also add multiple cursors using a regular expression. The command `MultipleCursorsFind` accepts a range and a pattern, and it will create a virtual cursor at the end of every match within the range. If no range is passed in, then it defaults to the entire buffer.  
 
-**NOTE:** The plugin is still somewhat buggy, if at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
+**NOTE:** If at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 
 ## Mapping
 Out of the box, only the single key `Ctrl-n` is mapped in regular Vim's Normal mode and Visual mode to provide the functionality mentioned above. `Ctrl-n`, `Ctrl-p`, `Ctrl-x`, and `<Esc>` are mapped in the special multicursor mode once you've added at least one virtual cursor to the buffer. If you don't like the plugin taking over your favorite key bindings, you can turn off the default with
@@ -88,11 +88,8 @@ highlight link multiple_cursors_visual Visual
 ## Issues
 - Multi key commands like `ciw` do not work at the moment
 - All user input typed before Vim is able to fan out the last operation to all cursors is lost. This is a implementation decision to keep the input perfectly synced in all locations, at the cost of potentially losing user input.
-- Single key commands that do not terminate properly cause unexpected behavior. For example, if the cursor is on the first character in the buffer and 'b' is pressed.
-- Undo behavior is unpredictable
 - Performance in terminal vim degrades significantly with more cursors
 - Select mode is not implemented
-- Buggy when `wrap` is turned on
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)

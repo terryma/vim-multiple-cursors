@@ -1,3 +1,9 @@
+## 2.0 (04/24/2013)
+
+Bugfixes:
+  - Fix inconsistent undo behavior. Changes made in multicursor insert mode are now undone together. This fixes #22.
+  - Single key commands that do not terminate properly no longer cause ghostly cursors to linger on screen. An error message is now displayed informing the user the number of cursor locations that the input cannot be properly played back at. This fixes #28.
+
 ## 1.16 (04/23/2013)
 
 Features:

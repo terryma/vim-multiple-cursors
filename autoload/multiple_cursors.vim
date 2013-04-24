@@ -58,6 +58,14 @@ inoremap <silent> <Plug>(a) <C-o>:call <SID>apply_user_input_next('i')<CR>
 nnoremap <silent> <Plug>(a) :call <SID>apply_user_input_next('n')<CR>
 xnoremap <silent> <Plug>(a) :<C-u>call <SID>apply_user_input_next('v')<CR>
 
+inoremap <silent> <Plug>(d) <C-o>:call <SID>detect_bad_input()<CR>
+nnoremap <silent> <Plug>(d) :call <SID>detect_bad_input()<CR>
+xnoremap <silent> <Plug>(d) :<C-u>call <SID>detect_bad_input()<CR>
+
+inoremap <silent> <Plug>(w) <C-o>:call <SID>wait_for_user_input('')<CR>
+nnoremap <silent> <Plug>(w) :call <SID>wait_for_user_input('')<CR>
+xnoremap <silent> <Plug>(w) :<C-u>call <SID>wait_for_user_input('')<CR>
+
 " Note that although these mappings are seemingly triggerd from Visual mode,
 " they are in fact triggered from Normal mode. We quit visual mode to allow the
 " virtual highlighting to take over
@@ -556,6 +564,7 @@ function! s:CursorManager.add(pos, ...) dict
   let self.current_index += 1
   return 1
 endfunction
+
 "===============================================================================
 " Variables
 "===============================================================================
@@ -570,6 +579,9 @@ let s:to_mode = ''
 let s:saved_linecount = -1
 " This is used to apply the highlight fix. See s:apply_highight_fix()
 let s:saved_line = 0
+" This is the number of cursor locations where we detected an input that we
+" cannot play back
+let s:bad_input = 0
 " Singleton cursor manager instance
 let s:cm = s:CursorManager.new()
 
@@ -745,12 +757,42 @@ function! s:process_user_inut()
 
   " Apply the user input. Note that the above could potentially change mode, we
   " use the mapping below to help us determine what the new mode is
-  " FIXME(terryma): It's possible that \<Plug>(a) never gets called
-  call s:feedkeys(s:char."\<Plug>(a)")
+  " Note that it's possible that \<Plug>(a) never gets called, we have a
+  " detection mechanism using \<Plug>(d). See its documentation for more details
+
+  " Assume that input is not valid
+  let s:valid_input = 0
+
+  " If we're coming from insert mode or going into insert mode, always chain the
+  " undos together.
+  " FIXME(terryma): Undo always places the cursor at the beginning of the line.
+  " Figure out why.
+  if s:from_mode ==# 'i' || s:to_mode ==# 'i'
+    silent! undojoin | call feedkeys(s:char."\<Plug>(a)")
+  else
+    call feedkeys(s:char."\<Plug>(a)")
+  endif
+  
+  " Even when s:char produces invalid input, this method is always called. The
+  " 't' here is important
+  call feedkeys("\<Plug>(d)", 't')
+endfunction
+
+" This method is always called during fanout, even when a bad user input causes
+" s:apply_user_input_next to not be called. We detect that and force the method
+" to be called to continue the fanout process
+function! s:detect_bad_input()
+  if !s:valid_input
+    " We ignore the bad input and force invoke s:apply_user_input_next
+    call feedkeys("\<Plug>(a)")
+    let s:bad_input += 1
+  endif
 endfunction
 
 " Apply the user input at the next cursor location
 function! s:apply_user_input_next(mode)
+  let s:valid_input = 1
+
   " Save the current mode, only if we haven't already
   if empty(s:to_mode)
     let s:to_mode = a:mode
@@ -776,10 +818,10 @@ function! s:apply_user_input_next(mode)
       " This is necessary to set the "'<" and "'>" markers properly
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
-    call s:wait_for_user_input(s:to_mode)
+    call feedkeys("\<Plug>(w)")
   else
     " Continue to next
-    call s:process_user_inut()
+    call feedkeys("\<Plug>(i)")
   endif
 endfunction
 
@@ -869,21 +911,44 @@ function! s:apply_highlight_fix()
   " Only do this if we're on the last character of the line
   if col('.') == col('$')
     let s:saved_line = getline('.')
-    call setline('.', s:saved_line.' ')
+    if s:from_mode ==# 'i'
+      silent! undojoin | call setline('.', s:saved_line.' ')
+    else
+      call setline('.', s:saved_line.' ')
+    endif
   endif
 endfunction
 
 " Revert the fix if it was applied earlier
 function! s:revert_highlight_fix()
   if type(s:saved_line) == 1
-    call setline('.', s:saved_line)
+    if s:from_mode ==# 'i'
+      silent! undojoin | call setline('.', s:saved_line)
+    else 
+      call setline('.', s:saved_line)
+    endif
   endif
   let s:saved_line = 0
 endfunction
 
+function! s:display_error()
+  if s:bad_input > 0
+    echohl ErrorMsg |
+          \ echo "Key '".s:char."' cannot be replayed at ".
+          \ s:bad_input." cursor location".(s:bad_input == 1 ? '' : 's') |
+          \ echohl Normal
+  endif
+  let s:bad_input = 0
+endfunction
+
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
+  if empty(a:mode)
+    let s:from_mode = s:to_mode
+  endif
   let s:to_mode = ''
+
+  call s:display_error()
 
   " Right before redraw, apply the highlighting bug fix
   call s:apply_highlight_fix()
