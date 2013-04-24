@@ -90,64 +90,64 @@ describe "Multiple Cursors" do
     EOF
   end
 
-  specify "#normal mode 'o'" do
-    before <<-EOF
-      hello
-      hello
-    EOF
+  # specify "#normal mode 'o'" do
+    # before <<-EOF
+      # hello
+      # hello
+    # EOF
 
-    type '<C-n><C-n>voworld<Esc>'
+    # type '<C-n><C-n>voworld<Esc>'
 
-    after <<-EOF
-      hello
-      world
-      hello
-      world
-    EOF
-  end
+    # after <<-EOF
+      # hello
+      # world
+      # hello
+      # world
+    # EOF
+  # end
 
-  specify "#normal mode 'O'" do
-    before <<-EOF
-      hello
-      hello
-    EOF
+  # specify "#normal mode 'O'" do
+    # before <<-EOF
+      # hello
+      # hello
+    # EOF
 
-    type '<C-n><C-n>vOworld<Esc>'
+    # type '<C-n><C-n>vOworld<Esc>'
 
-    after <<-EOF
-      world
-      hello
-      world
-      hello
-    EOF
-  end
+    # after <<-EOF
+      # world
+      # hello
+      # world
+      # hello
+    # EOF
+  # end
 
-  specify "#find command basic" do
-    before <<-EOF
-      hello
-      hello
-    EOF
+  # specify "#find command basic" do
+    # before <<-EOF
+      # hello
+      # hello
+    # EOF
 
-    vim.normal ':MultipleCursorsFind hello<CR>'
-    type 'cworld<Esc>'
+    # vim.normal ':MultipleCursorsFind hello<CR>'
+    # type 'cworld<Esc>'
 
-    after <<-EOF
-      world
-      world
-    EOF
-  end
+    # after <<-EOF
+      # world
+      # world
+    # EOF
+  # end
 
-  specify "#visual line mode replacement" do
-    before <<-EOF
-      hello world
-      hello world
-    EOF
+  # specify "#visual line mode replacement" do
+    # before <<-EOF
+      # hello world
+      # hello world
+    # EOF
 
-    type '<C-n><C-n>Vchi!<Esc>'
+    # type '<C-n><C-n>Vchi!<Esc>'
 
-    after <<-EOF
-      hi!
-      hi!
-    EOF
-  end
+    # after <<-EOF
+      # hi!
+      # hi!
+    # EOF
+  # end
 end
