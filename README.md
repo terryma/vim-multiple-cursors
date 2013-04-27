@@ -15,7 +15,7 @@
 ### Add multiple cursors using regexes
 ![Example4](assets/example4.gif?raw=true)
 
-To see what keystrokes are used for the above example, see [this issue](https://github.com/terryma/vim-multiple-cursors/issues/12).
+To see what keystrokes are used for the above example, see [this issue](https://github.com/terryma/vim-multiple-cursors/issues/39).
 
 ## Features
 - Live update in Insert mode
