@@ -69,7 +69,7 @@ let g:multi_cursor_start_key='<F6>'
 
 ## Setting
 Currently there're two additional global settings one can tweak:
-### ```g:multi_cursor_exit_from_visual_mode``` (Defaut: 1)
+### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
 
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
