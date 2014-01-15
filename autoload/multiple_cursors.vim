@@ -96,8 +96,8 @@ endfunction
 " is created at the end of the visual selection. Another cursor will be
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode)
-    if exists('*multiple_cursors_before')
-        exe "call multiple_cursors_before()"
+    if exists('*Multiple_cursors_before')
+        exe "call Multiple_cursors_before()"
     endif
   if a:mode ==# 'n'
     " Reset all existing cursors, don't restore view and setting
@@ -151,9 +151,6 @@ function! multiple_cursors#new(mode)
       call s:wait_for_user_input('v')
     endif
   endif
-    if exists('*multiple_cursors_after')
-        exe "call multiple_cursors_after()"
-    endif
 endfunction
 
 " Delete the current cursor. If there's no more cursors, stop the loop
@@ -367,6 +364,9 @@ function! s:CursorManager.reset(restore_view, restore_setting) dict
   if a:restore_setting
     call self.restore_user_settings()
   endif
+    if exists('*Multiple_cursors_after')
+        exe "call Multiple_cursors_after()"
+    endif
 endfunction
 
 " Returns 0 if it's not managing any cursors at the moment
@@ -634,6 +634,10 @@ endfunction
 " visual selection ended
 function! s:exit_visual_mode()
   exec "normal! \<Esc>gv\<Esc>"
+
+    if exists('*Multiple_cursors_before')
+        exe "call Multiple_cursors_before()"
+    endif
 endfunction
 
 " Visually select input region, where region is an array containing the start
