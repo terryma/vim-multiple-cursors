@@ -96,6 +96,9 @@ endfunction
 " is created at the end of the visual selection. Another cursor will be
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode)
+    if exists('*multiple_cursors_before')
+        exe "call multiple_cursors_before()"
+    endif
   if a:mode ==# 'n'
     " Reset all existing cursors, don't restore view and setting
     call s:cm.reset(0, 0)
@@ -148,6 +151,9 @@ function! multiple_cursors#new(mode)
       call s:wait_for_user_input('v')
     endif
   endif
+    if exists('*multiple_cursors_after')
+        exe "call multiple_cursors_after()"
+    endif
 endfunction
 
 " Delete the current cursor. If there's no more cursors, stop the loop
