@@ -238,6 +238,9 @@ function! s:Cursor.new(position)
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
   let obj.line_length = col([a:position[0], '$'])
+  if has('folding')
+    silent! execute a:position[0] . "foldopen!"
+  endif
   return obj
 endfunction
 
