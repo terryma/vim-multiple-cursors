@@ -31,8 +31,9 @@ let s:settings = {
       \ 'exit_from_insert_mode': 1,
       \ 'use_default_mapping': 1,
       \ 'debug_latency': 0,
-      \ 'insert_maps': 0,
       \ }
+
+let g:multi_cursor_insert_maps = get(g:, 'multi_cursor_insert_maps', {})
 
 let s:settings_if_default = {
       \ 'quit_key': '<Esc>',
