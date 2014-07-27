@@ -31,6 +31,7 @@ let s:settings = {
       \ 'exit_from_insert_mode': 1,
       \ 'use_default_mapping': 1,
       \ 'debug_latency': 0,
+      \ 'insert_maps': 0,
       \ }
 
 let s:settings_if_default = {

@@ -69,13 +69,22 @@ let g:multi_cursor_start_key='<F6>'
 **NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
-Currently there're two additional global settings one can tweak:
+Currently there're three additional global settings one can tweak:
 ### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
 
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
 ### ```g:multi_cursor_exit_from_insert_mode``` (Default: 1)
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Insert_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
+
+### ```g:multi_cursor_insert_maps``` (Default: `{}`)
+Any key in this map (values are ignored) will cause multi-cursor _Insert_ mode
+to pause for `timeoutlen` waiting for map completion just like normal vim.
+Otherwise keys mapped in insert mode are ignored when multiple cursors are
+active. For example, setting it to `{'\':1}` will make insert-mode mappings
+beginning with the default leader key work in multi-cursor mode. You have to
+manually set this because vim doesn't provide a way to see which keys *start*
+mappings.
 
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
@@ -87,9 +96,6 @@ highlight link multiple_cursors_visual Visual
 ```
 
 ## Issues
-- There is a bit of lag sometimes due to how multi-key support was added, but
-  it's like vim's lag when entering a character with a possible mapping: if you
-  ignore it and keep typing it is just a visual delay.
 - Select mode is not implemented
 
 ## Changelog

@@ -764,8 +764,6 @@ function! s:feedkeys(keys)
       endif
     elseif char_type == 1 " char with more than 8 bits (as string)
       let s:saved_keys .= c
-    else " I think this will never happen
-      echo "Unknown char_type in multiple_cursor:wait_for_user_input(): ".char_type." c=".c
     endif
   endwhile
   call feedkeys(a:keys)
@@ -1027,6 +1025,24 @@ function! s:wait_for_user_input(mode)
     let s:saved_keys = ""
   else
     let s:char = s:get_char()
+  endif
+
+  if has_key(g:multi_cursor_insert_maps, s:last_char())
+    let c = getchar(0)
+    let char_type = type(c)
+    let poll_count = 0
+    while char_type == 0 && c == 0 && poll_count < &timeoutlen
+      sleep 1m
+      let c = getchar(0)
+      let char_type = type(c)
+      let poll_count += 1
+    endwhile
+
+    if char_type == 0 && c != 0
+      let s:char .= nr2char(c)
+    elseif char_type == 1 " char with more than 8 bits (as string)
+      let s:char .= c
+    endif
   endif
 
   call s:start_latency_measure()
