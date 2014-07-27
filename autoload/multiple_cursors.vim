@@ -892,7 +892,7 @@ endfunction
 " Quits multicursor mode and clears all cursors. Return true if exited
 " successfully.
 function! s:exit()
-  if s:char[len(s:char)-1] !=# g:multi_cursor_quit_key
+  if s:last_char() !=# g:multi_cursor_quit_key
     return 0
   endif
   let exit = 0
@@ -1002,6 +1002,10 @@ function! s:end_latency_measure()
   let s:skip_latency_measure = 0
 endfunction
 
+function! s:last_char()
+  return s:char[len(s:char)-1]
+endfunction
+
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   if empty(a:mode)
@@ -1028,7 +1032,7 @@ function! s:wait_for_user_input(mode)
     let s:char = s:get_char()
   endif
 
-  while 1
+  while index(get(s:special_keys, s:from_mode, []), s:last_char()) == -1
     let c = getchar(0)
     " Checking type is important, when strings are compared with integers,
     " strings are always converted to ints, and all strings are equal to 0
@@ -1060,8 +1064,8 @@ function! s:wait_for_user_input(mode)
   endif
 
   " If the key is a special key and we're in the right mode, handle it
-  if index(get(s:special_keys, s:from_mode, []), s:char[len(s:char)-1]) != -1
-    call s:handle_special_key(s:char[len(s:char)-1], s:from_mode)
+  if index(get(s:special_keys, s:from_mode, []), s:last_char()) != -1
+    call s:handle_special_key(s:last_char(), s:from_mode)
     call s:skip_latency_measure()
   else
     call s:cm.start_loop()
