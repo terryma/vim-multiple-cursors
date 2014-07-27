@@ -963,10 +963,7 @@ endfunction
 
 function! s:display_error()
   if s:bad_input > 0
-    echohl ErrorMsg |
-          \ echo "Key '".s:char."' cannot be replayed at ".
-          \ s:bad_input." cursor location".(s:bad_input == 1 ? '' : 's') |
-          \ echohl Normal
+    let s:saved_keys = s:char . s:saved_keys
   endif
   let s:bad_input = 0
 endfunction
@@ -1031,28 +1028,6 @@ function! s:wait_for_user_input(mode)
   else
     let s:char = s:get_char()
   endif
-
-  while index(get(s:special_keys, s:from_mode, []), s:last_char()) == -1
-    let c = getchar(0)
-    " Checking type is important, when strings are compared with integers,
-    " strings are always converted to ints, and all strings are equal to 0
-    let char_type = type(c)
-    if char_type == 0 && c == 0 " Buffer is empty
-      sleep 100m
-      let c = getchar(0)
-      let char_type = type(c)
-      if char_type == 0 && c == 0 " Buffer is empty
-        break
-      endif
-    endif
-    if char_type == 0 " 8-bit char (as number)
-      let s:char .= nr2char(c)
-    elseif char_type == 1 " char with more than 8 bits (as string)
-      let s:char .= c
-    else " I think this will never happen
-      echo "Unknown char_type in multiple_cursor:wait_for_user_input(): ".char_type." c=".c
-    endif
-  endwhile
 
   call s:start_latency_measure()
 
