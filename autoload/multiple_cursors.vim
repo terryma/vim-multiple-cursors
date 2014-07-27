@@ -750,16 +750,23 @@ endfunction
 
 " Consume all the additional character the user typed between the last
 " getchar() and here, to avoid potential race condition.
-" TODO(terryma): This solves the problem of cursors getting out of sync, but
-" we're potentially losing user input. We COULD replay these characters as
-" well...
+let s:saved_keys = ""
 function! s:feedkeys(keys)
   while 1
     let c = getchar(0)
+    let char_type = type(c)
     " Checking type is important, when strings are compared with integers,
     " strings are always converted to ints, and all strings are equal to 0
-    if type(c) == 0 && c == 0
-      break
+    if char_type == 0
+      if c == 0
+        break
+      else
+        let s:saved_keys .= nr2char(c)
+      endif
+    elseif char_type == 1 " char with more than 8 bits (as string)
+      let s:saved_keys .= c
+    else " I think this will never happen
+      echo "Unknown char_type in multiple_cursor:wait_for_user_input(): ".char_type." c=".c
     endif
   endwhile
   call feedkeys(a:keys)
@@ -798,7 +805,7 @@ function! s:process_user_input()
   else
     call s:feedkeys(s:char."\<Plug>(a)")
   endif
-  
+
   " Even when s:char produces invalid input, this method is always called. The
   " 't' here is important
   call feedkeys("\<Plug>(d)", 't')
@@ -1014,7 +1021,29 @@ function! s:wait_for_user_input(mode)
 
   call s:end_latency_measure()
 
-  let s:char = s:get_char()
+  let s:char = s:saved_keys . s:get_char()
+  let s:saved_keys = ""
+  while 1
+    let c = getchar(0)
+    " Checking type is important, when strings are compared with integers,
+    " strings are always converted to ints, and all strings are equal to 0
+    let char_type = type(c)
+    if char_type == 0 && c == 0 " Buffer is empty
+      sleep 100m
+      let c = getchar(0)
+      let char_type = type(c)
+      if char_type == 0 && c == 0 " Buffer is empty
+        break
+      endif
+    endif
+    if char_type == 0 " 8-bit char (as number)
+      let s:char .= nr2char(c)
+    elseif char_type == 1 " char with more than 8 bits (as string)
+      let s:char .= c
+    else " I think this will never happen
+      echo "Unknown char_type in multiple_cursor:wait_for_user_input(): ".char_type." c=".c
+    endif
+  endwhile
 
   call s:start_latency_measure()
 
@@ -1027,7 +1056,7 @@ function! s:wait_for_user_input(mode)
 
   " If the key is a special key and we're in the right mode, handle it
   if index(get(s:special_keys, s:from_mode, []), s:char) != -1
-    call s:handle_special_key(s:char, s:from_mode)
+    call s:handle_special_key(s:char[len(s:char)-1], s:from_mode)
     call s:skip_latency_measure()
   else
     call s:cm.start_loop()
