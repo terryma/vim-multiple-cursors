@@ -536,6 +536,7 @@ function! s:CursorManager.initialize() dict
   let &cursorline = 0
   let &lazyredraw = 1
   let &paste = 0
+  inoremap <silent> <Esc> <Esc>`^
   " We could have already saved the view from multiple_cursors#find
   if !self.start_from_find
     let self.saved_winview = winsaveview()
@@ -738,12 +739,10 @@ endfunction
 function! s:revert_mode(from, to)
   if a:to ==# 'v'
     call s:cm.reapply_visual_selection()
-  endif
-  if a:to ==# 'V'
+  elseif a:to ==# 'V'
     call s:cm.reapply_visual_selection()
     normal! V
-  endif
-  if a:to ==# 'n' && a:from ==# 'i'
+  elseif a:to ==# 'n' && a:from ==# 'i'
     stopinsert
   endif
 endfunction
@@ -907,6 +906,7 @@ function! s:exit()
     let exit = 1
   endif
   if exit
+    iunmap <silent> <Esc>
     call s:cm.reset(1, 1)
     return 1
   endif
