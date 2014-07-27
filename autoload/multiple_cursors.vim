@@ -1021,8 +1021,13 @@ function! s:wait_for_user_input(mode)
 
   call s:end_latency_measure()
 
-  let s:char = s:saved_keys . s:get_char()
-  let s:saved_keys = ""
+  if len(s:saved_keys) > 0
+    let s:char = s:saved_keys
+    let s:saved_keys = ""
+  else
+    let s:char = s:get_char()
+  endif
+
   while 1
     let c = getchar(0)
     " Checking type is important, when strings are compared with integers,
@@ -1055,7 +1060,7 @@ function! s:wait_for_user_input(mode)
   endif
 
   " If the key is a special key and we're in the right mode, handle it
-  if index(get(s:special_keys, s:from_mode, []), s:char) != -1
+  if index(get(s:special_keys, s:from_mode, []), s:char[len(s:char)-1]) != -1
     call s:handle_special_key(s:char[len(s:char)-1], s:from_mode)
     call s:skip_latency_measure()
   else
