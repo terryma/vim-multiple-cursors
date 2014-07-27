@@ -1027,7 +1027,7 @@ function! s:wait_for_user_input(mode)
     let s:char = s:get_char()
   endif
 
-  if has_key(g:multi_cursor_insert_maps, s:last_char())
+  if s:from_mode ==# 'i' && has_key(g:multi_cursor_insert_maps, s:last_char())
     let c = getchar(0)
     let char_type = type(c)
     let poll_count = 0
