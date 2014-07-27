@@ -893,7 +893,7 @@ endfunction
 " Quits multicursor mode and clears all cursors. Return true if exited
 " successfully.
 function! s:exit()
-  if s:char !=# g:multi_cursor_quit_key
+  if s:char[len(s:char)-1] !=# g:multi_cursor_quit_key
     return 0
   endif
   let exit = 0
