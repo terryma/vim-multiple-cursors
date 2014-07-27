@@ -20,7 +20,8 @@ To see what keystrokes are used for the above example, see [this issue](https://
 ## Features
 - Live update in Insert mode
 - One key to rule it all! See [Quick Start](#quick-start) on what the key does in different scenarios
-- Works in Normal, Insert, and Visual mode for SINGLE key command
+- Works in Normal, Insert, and Visual mode for any commands (including
+  multi-key commands like `dw`!)
 
 ## Installation
 Install using [Pathogen], [Vundle], [Neobundle], or your favorite Vim package manager.
@@ -61,11 +62,11 @@ By default, the 'next' key is also used to enter multicursor mode. If you want t
 let g:multi_cursor_start_key='<F6>'
 ```
 
-**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This contraint is also the reason why multikey commands such as `ciw` do not work and cause unexpected behavior in Normal mode. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
+**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
 
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
-**NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
+**NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
 Currently there're two additional global settings one can tweak:
@@ -86,8 +87,9 @@ highlight link multiple_cursors_visual Visual
 ```
 
 ## Issues
-- Multi key commands like `ciw` do not work at the moment
-- All user input typed before Vim is able to fan out the last operation to all cursors is lost. This is a implementation decision to keep the input perfectly synced in all locations, at the cost of potentially losing user input.
+- There is a bit of lag sometimes due to how multi-key support was added, but
+  it's like vim's lag when entering a character with a possible mapping: if you
+  ignore it and keep typing it is just a visual delay.
 - Select mode is not implemented
 
 ## Changelog
