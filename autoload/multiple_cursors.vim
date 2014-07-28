@@ -960,8 +960,15 @@ function! s:revert_highlight_fix()
 endfunction
 
 function! s:display_error()
-  if s:bad_input > 0
+  if s:bad_input == s:cm.size()
+    " we couldn't replay it anywhere, it could be the beginning of a multi-key
+    " map like the `d` in `dw`
     let s:saved_keys = s:char . s:saved_keys
+  elseif s:bad_input > 0
+    echohl ErrorMsg |
+          \ echo "Key '".s:char."' cannot be replayed at ".
+          \ s:bad_input." cursor location".(s:bad_input == 1 ? '' : 's') |
+          \ echohl Normal
   endif
   let s:bad_input = 0
 endfunction
