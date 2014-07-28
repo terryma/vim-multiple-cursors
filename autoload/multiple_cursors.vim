@@ -1056,6 +1056,10 @@ function! s:wait_for_user_input(mode)
     endif
   endif
 
+  while s:from_mode ==# 'n' && match(s:last_char(), "\\d") == 0
+    let s:char .= s:get_char()
+  endwhile
+
   call s:start_latency_measure()
 
   " Clears any echoes we might've added
