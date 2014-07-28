@@ -1054,11 +1054,17 @@ function! s:wait_for_user_input(mode)
     elseif char_type == 1 " char with more than 8 bits (as string)
       let s:char .= c
     endif
+  else
+    if s:char[0] ==# ":"
+      call s:feedkeys(s:char)
+      call s:cm.reset(1, 1)
+      return
+    elseif s:from_mode ==# 'n'
+      while match(s:last_char(), "\\d") == 0
+        let s:char .= s:get_char()
+      endwhile
+    endif
   endif
-
-  while s:from_mode ==# 'n' && match(s:last_char(), "\\d") == 0
-    let s:char .= s:get_char()
-  endwhile
 
   call s:start_latency_measure()
 
