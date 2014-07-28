@@ -444,6 +444,8 @@ function! s:CursorManager.update_current() dict
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
     call cur.remove_visual_selection()
+  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index == self.size() - 1
+    normal! `^
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -536,7 +538,6 @@ function! s:CursorManager.initialize() dict
   let &cursorline = 0
   let &lazyredraw = 1
   let &paste = 0
-  inoremap <silent> <Esc> <Esc>`^
   " We could have already saved the view from multiple_cursors#find
   if !self.start_from_find
     let self.saved_winview = winsaveview()
@@ -904,7 +905,6 @@ function! s:exit()
     let exit = 1
   endif
   if exit
-    iunmap <silent> <Esc>
     call s:cm.reset(1, 1)
     return 1
   endif
