@@ -86,6 +86,15 @@ beginning with the default leader key work in multi-cursor mode. You have to
 manually set this because vim doesn't provide a way to see which keys *start*
 mappings.
 
+### ```g:multi_cursor_normal_maps``` (Default: `{}`)
+Any key in this map (values are ignored) will cause multi-cursor _Normal_ mode
+to pause for map completion just like normal vim. Otherwise keys mapped in
+normal mode will "fail to replay" when multiple cursors are active. For example,
+setting it to `{'d':1}` will make normal-mode mappings beginning with `d` (such
+as `dw` to delete a word) work in multi-cursor mode. You have to
+manually set this because vim doesn't provide a way to see which keys *start*
+mappings; setting it to include motion commands like `j` can break things.
+
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
 

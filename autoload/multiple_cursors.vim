@@ -961,9 +961,9 @@ endfunction
 
 let s:retry_keys = ""
 function! s:display_error()
-  if s:bad_input == s:cm.size()
-    " we couldn't replay it anywhere, it could be the beginning of a multi-key
-    " map like the `d` in `dw`
+  if s:bad_input == s:cm.size() && has_key(g:multi_cursor_normal_maps, s:char[0])
+    " we couldn't replay it anywhere but we're told it's the beginning of a
+    " multi-character map like the `d` in `dw`
     let s:retry_keys = s:char
   else
     let s:retry_keys = ""
