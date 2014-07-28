@@ -21,7 +21,8 @@ To see what keystrokes are used for the above example, see [this issue](https://
 - Live update in Insert mode
 - One key to rule it all! See [Quick Start](#quick-start) on what the key does in different scenarios
 - Works in Normal, Insert, and Visual mode for any commands (including
-  multi-key commands like `dw`!)
+  multi-key commands, assuming you set `g:multicursor_insert_maps` and
+  `g:multicursor_normal_maps`; see Settings below for details)
 
 ## Installation
 Install using [Pathogen], [Vundle], [Neobundle], or your favorite Vim package manager.
