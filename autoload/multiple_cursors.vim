@@ -1055,7 +1055,7 @@ function! s:wait_for_user_input(mode)
       let s:char .= c
     endif
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
-    call s:feedkeys(s:char)
+    call feedkeys(s:char)
     call s:cm.reset(1, 1)
     return
   elseif s:from_mode ==# 'n'
