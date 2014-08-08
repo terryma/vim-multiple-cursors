@@ -20,7 +20,9 @@ To see what keystrokes are used for the above example, see [this issue](https://
 ## Features
 - Live update in Insert mode
 - One key to rule it all! See [Quick Start](#quick-start) on what the key does in different scenarios
-- Works in Normal, Insert, and Visual mode for SINGLE key command
+- Works in Normal, Insert, and Visual mode for any commands (including
+  multi-key commands, assuming you set `g:multicursor_insert_maps` and
+  `g:multicursor_normal_maps`; see Settings below for details)
 
 ## Installation
 Install using [Pathogen], [Vundle], [Neobundle], or your favorite Vim package manager.
@@ -61,20 +63,38 @@ By default, the 'next' key is also used to enter multicursor mode. If you want t
 let g:multi_cursor_start_key='<F6>'
 ```
 
-**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This contraint is also the reason why multikey commands such as `ciw` do not work and cause unexpected behavior in Normal mode. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
+**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
 
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
-**NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expressoin quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
+**NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
-Currently there're two additional global settings one can tweak:
+Currently there're three additional global settings one can tweak:
 ### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
 
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
 ### ```g:multi_cursor_exit_from_insert_mode``` (Default: 1)
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Insert_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
+
+### ```g:multi_cursor_insert_maps``` (Default: `{}`)
+Any key in this map (values are ignored) will cause multi-cursor _Insert_ mode
+to pause for `timeoutlen` waiting for map completion just like normal vim.
+Otherwise keys mapped in insert mode are ignored when multiple cursors are
+active. For example, setting it to `{'\':1}` will make insert-mode mappings
+beginning with the default leader key work in multi-cursor mode. You have to
+manually set this because vim doesn't provide a way to see which keys *start*
+mappings.
+
+### ```g:multi_cursor_normal_maps``` (Default: `{}`)
+Any key in this map (values are ignored) will cause multi-cursor _Normal_ mode
+to pause for map completion just like normal vim. Otherwise keys mapped in
+normal mode will "fail to replay" when multiple cursors are active. For example,
+setting it to `{'d':1}` will make normal-mode mappings beginning with `d` (such
+as `dw` to delete a word) work in multi-cursor mode. You have to
+manually set this because vim doesn't provide a way to see which keys *start*
+mappings; setting it to include motion commands like `j` can break things.
 
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
@@ -86,8 +106,6 @@ highlight link multiple_cursors_visual Visual
 ```
 
 ## Issues
-- Multi key commands like `ciw` do not work at the moment
-- All user input typed before Vim is able to fan out the last operation to all cursors is lost. This is a implementation decision to keep the input perfectly synced in all locations, at the cost of potentially losing user input.
 - Select mode is not implemented
 
 ## Changelog

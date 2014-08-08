@@ -444,6 +444,8 @@ function! s:CursorManager.update_current() dict
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
     call cur.remove_visual_selection()
+  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index == self.size() - 1
+    normal! `^
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -738,28 +740,31 @@ endfunction
 function! s:revert_mode(from, to)
   if a:to ==# 'v'
     call s:cm.reapply_visual_selection()
-  endif
-  if a:to ==# 'V'
+  elseif a:to ==# 'V'
     call s:cm.reapply_visual_selection()
     normal! V
-  endif
-  if a:to ==# 'n' && a:from ==# 'i'
+  elseif a:to ==# 'n' && a:from ==# 'i'
     stopinsert
   endif
 endfunction
 
 " Consume all the additional character the user typed between the last
 " getchar() and here, to avoid potential race condition.
-" TODO(terryma): This solves the problem of cursors getting out of sync, but
-" we're potentially losing user input. We COULD replay these characters as
-" well...
+let s:saved_keys = ""
 function! s:feedkeys(keys)
   while 1
     let c = getchar(0)
+    let char_type = type(c)
     " Checking type is important, when strings are compared with integers,
     " strings are always converted to ints, and all strings are equal to 0
-    if type(c) == 0 && c == 0
-      break
+    if char_type == 0
+      if c == 0
+        break
+      else
+        let s:saved_keys .= nr2char(c)
+      endif
+    elseif char_type == 1 " char with more than 8 bits (as string)
+      let s:saved_keys .= c
     endif
   endwhile
   call feedkeys(a:keys)
@@ -798,7 +803,7 @@ function! s:process_user_input()
   else
     call s:feedkeys(s:char."\<Plug>(a)")
   endif
-  
+
   " Even when s:char produces invalid input, this method is always called. The
   " 't' here is important
   call feedkeys("\<Plug>(d)", 't')
@@ -886,7 +891,7 @@ endfunction
 " Quits multicursor mode and clears all cursors. Return true if exited
 " successfully.
 function! s:exit()
-  if s:char !=# g:multi_cursor_quit_key
+  if s:last_char() !=# g:multi_cursor_quit_key
     return 0
   endif
   let exit = 0
@@ -954,12 +959,20 @@ function! s:revert_highlight_fix()
   let s:saved_line = 0
 endfunction
 
+let s:retry_keys = ""
 function! s:display_error()
-  if s:bad_input > 0
-    echohl ErrorMsg |
-          \ echo "Key '".s:char."' cannot be replayed at ".
-          \ s:bad_input." cursor location".(s:bad_input == 1 ? '' : 's') |
-          \ echohl Normal
+  if s:bad_input == s:cm.size() && has_key(g:multi_cursor_normal_maps, s:char[0])
+    " we couldn't replay it anywhere but we're told it's the beginning of a
+    " multi-character map like the `d` in `dw`
+    let s:retry_keys = s:char
+  else
+    let s:retry_keys = ""
+    if s:bad_input > 0
+      echohl ErrorMsg |
+            \ echo "Key '".s:char."' cannot be replayed at ".
+            \ s:bad_input." cursor location".(s:bad_input == 1 ? '' : 's') |
+            \ echohl Normal
+    endif
   endif
   let s:bad_input = 0
 endfunction
@@ -995,6 +1008,10 @@ function! s:end_latency_measure()
   let s:skip_latency_measure = 0
 endfunction
 
+function! s:last_char()
+  return s:char[len(s:char)-1]
+endfunction
+
 function! s:wait_for_user_input(mode)
   let s:from_mode = a:mode
   if empty(a:mode)
@@ -1014,7 +1031,38 @@ function! s:wait_for_user_input(mode)
 
   call s:end_latency_measure()
 
-  let s:char = s:get_char()
+  let s:char = s:retry_keys . s:saved_keys
+  if len(s:saved_keys) == 0
+    let s:char .= s:get_char()
+  else
+    let s:saved_keys = ""
+  endif
+
+  if s:from_mode ==# 'i' && has_key(g:multi_cursor_insert_maps, s:last_char())
+    let c = getchar(0)
+    let char_type = type(c)
+    let poll_count = 0
+    while char_type == 0 && c == 0 && poll_count < &timeoutlen
+      sleep 1m
+      let c = getchar(0)
+      let char_type = type(c)
+      let poll_count += 1
+    endwhile
+
+    if char_type == 0 && c != 0
+      let s:char .= nr2char(c)
+    elseif char_type == 1 " char with more than 8 bits (as string)
+      let s:char .= c
+    endif
+  elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
+    call feedkeys(s:char)
+    call s:cm.reset(1, 1)
+    return
+  elseif s:from_mode ==# 'n'
+    while match(s:last_char(), "\\d") == 0
+      let s:char .= s:get_char()
+    endwhile
+  endif
 
   call s:start_latency_measure()
 
@@ -1026,8 +1074,8 @@ function! s:wait_for_user_input(mode)
   endif
 
   " If the key is a special key and we're in the right mode, handle it
-  if index(get(s:special_keys, s:from_mode, []), s:char) != -1
-    call s:handle_special_key(s:char, s:from_mode)
+  if index(get(s:special_keys, s:from_mode, []), s:last_char()) != -1
+    call s:handle_special_key(s:last_char(), s:from_mode)
     call s:skip_latency_measure()
   else
     call s:cm.start_loop()
