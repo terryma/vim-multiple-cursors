@@ -1,5 +1,30 @@
 # vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.png)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
+## INFO
+Main repository is not maintained any more, so use this fork instead and post all issues and PRs here.
+
+I've added two helpful functions to this fork to prevent conflicts with some other plugins (mostly autocomplete ones).
+
+For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim), add this to your vimrc to prevent conflict:
+
+````
+" Called once right before you start selecting multiple cursors
+function! Multiple_cursors_before()
+    exe 'NeoCompleteLock'
+endfunction
+
+" Called once only when the multiple selection is canceled (default <Esc>)
+function! Multiple_cursors_after()
+    exe 'NeoCompleteUnlock'
+endfunction
+````
+
+With this locking and unlocking we prevent neocomplete to trigger it's function calls until we are finished with multiple cursors editing.
+
+###Contributors
+- [eapache](https://github.com/eapache)
+- [aschrab](https://github.com/aschrab)
+
 ## About
 [There](https://github.com/paradigm/vim-multicursor) [have](https://github.com/felixr/vim-multiedit) [been](https://github.com/hlissner/vim-multiedit) [many](https://github.com/adinapoli/vim-markmultiple) [attempts](https://github.com/AndrewRadev/multichange.vim) at bringing Sublime Text's awesome [multiple selection][sublime-multiple-selection] feature into Vim, but none so far have been in my opinion a faithful port that is simplistic to use, yet powerful and intuitive enough for an existing Vim user. [vim-multiple-cursors] is yet another attempt at that.
 
@@ -38,7 +63,7 @@ Two additional keys are also mapped:
 - `Ctrl-p` in Visual mode will remove the current virtual cursor and go back to the previous virtual cursor location. This is useful if you are trigger happy with `Ctrl-n` and accidentally went too far.
 - `Ctrl-x` in Visual mode will remove the current virtual cursor and skip to the next virtual cursor location. This is useful if you don't want the current selection to be a candidate to operate on later.
 
-You can also add multiple cursors using a regular expression. The command `MultipleCursorsFind` accepts a range and a pattern, and it will create a virtual cursor at the end of every match within the range. If no range is passed in, then it defaults to the entire buffer.  
+You can also add multiple cursors using a regular expression. The command `MultipleCursorsFind` accepts a range and a pattern, and it will create a virtual cursor at the end of every match within the range. If no range is passed in, then it defaults to the entire buffer.
 
 **NOTE:** If at any time you have lingering cursors on screen, you can press `Ctrl-n` in Normal mode and it will remove all prior cursors before starting a new one.
 

@@ -16,7 +16,7 @@ for key in [ 'g:multi_cursor_next_key',
     " Translate raw strings like "<C-n>" into key code like "\<C-n>"
     exec 'let temp = '.key
     if temp =~ '^<.*>$'
-      exec 'let '.key.' = "\'.temp.'"' 
+      exec 'let '.key.' = "\'.temp.'"'
     endif
   else
     " If the user didn't define it, initialize it to an empty string so the
@@ -37,6 +37,9 @@ let s:hi_group_cursor = 'multiple_cursors_cursor'
 
 " The highlight group we use for all the visual selection
 let s:hi_group_visual = 'multiple_cursors_visual'
+
+" Used for preventing multiple calls on before function
+let s:before_function_called = 0
 
 " Set up highlighting
 if !hlexists(s:hi_group_cursor)
@@ -96,9 +99,11 @@ endfunction
 " is created at the end of the visual selection. Another cursor will be
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode)
-    if exists('*Multiple_cursors_before')
-        exe "call Multiple_cursors_before()"
-    endif
+  " Call before function if exists only once until it is canceled (<Esc>)
+  if exists('*Multiple_cursors_before') && !s:before_function_called
+    exe "call Multiple_cursors_before()"
+    let s:before_function_called = 1
+  endif
   if a:mode ==# 'n'
     " Reset all existing cursors, don't restore view and setting
     call s:cm.reset(0, 0)
@@ -334,7 +339,7 @@ function! s:CursorManager.new()
 endfunction
 
 " Clear all cursors and their highlights
-function! s:CursorManager.reset(restore_view, restore_setting) dict
+function! s:CursorManager.reset(restore_view, restore_setting, ...) dict
   if a:restore_view
     " Return the view back to the beginning
     if !empty(self.saved_winview)
@@ -367,9 +372,11 @@ function! s:CursorManager.reset(restore_view, restore_setting) dict
   if a:restore_setting
     call self.restore_user_settings()
   endif
-    if exists('*Multiple_cursors_after')
-        exe "call Multiple_cursors_after()"
-    endif
+  " Call after function if exists and only if action is canceled (<Esc>)
+  if exists('*Multiple_cursors_after') && a:0 && s:before_function_called
+    exe "call Multiple_cursors_after()"
+    let s:before_function_called = 0
+  endif
 endfunction
 
 " Returns 0 if it's not managing any cursors at the moment
@@ -640,9 +647,11 @@ endfunction
 function! s:exit_visual_mode()
   exec "normal! \<Esc>gv\<Esc>"
 
-    if exists('*Multiple_cursors_before')
-        exe "call Multiple_cursors_before()"
-    endif
+  " Call before function if exists only once until it is canceled (<Esc>)
+  if exists('*Multiple_cursors_before') && !s:before_function_called
+    exe "call Multiple_cursors_before()"
+    let s:before_function_called = 1
+  endif
 endfunction
 
 " Visually select input region, where region is an array containing the start
@@ -658,7 +667,7 @@ endfunction
 function! s:select_in_visual_mode(region)
   if a:region[0] == a:region[1]
     normal! v
-  else 
+  else
     call cursor(a:region[1])
     normal! m`
     call cursor(a:region[0])
@@ -675,7 +684,7 @@ endfunction
 function! s:update_visual_markers(region)
   if a:region[0] == a:region[1]
     normal! v
-  else 
+  else
     call cursor(a:region[1])
     normal! m`
     call cursor(a:region[0])
@@ -729,7 +738,7 @@ function! s:highlight_region(region)
       let pattern = s1.'\|'.s2
       " More than two lines
       if (s[1][0] - s[0][0] > 1)
-        let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l.*\ze.\_$' 
+        let pattern = pattern.'\|\%>'.s[0][0].'l\%<'.s[1][0].'l.*\ze.\_$'
       endif
     endif
   endif
@@ -905,7 +914,7 @@ function! s:exit()
     let exit = 1
   endif
   if exit
-    call s:cm.reset(1, 1)
+    call s:cm.reset(1, 1, 1)
     return 1
   endif
   return 0
