@@ -8,14 +8,17 @@ I've added two helpful functions to this fork to prevent conflicts with some oth
 For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim), add this to your vimrc to prevent conflict:
 
 ````
-" Called once right before you start selecting multiple cursors
 function! Multiple_cursors_before()
+  if exists(':NeoCompleteLock')==2
     exe 'NeoCompleteLock'
+  endif
 endfunction
 
 " Called once only when the multiple selection is canceled (default <Esc>)
 function! Multiple_cursors_after()
+  if exists(':NeoCompleteUnlock')==2
     exe 'NeoCompleteUnlock'
+  endif
 endfunction
 ````
 
