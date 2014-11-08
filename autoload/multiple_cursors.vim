@@ -748,6 +748,10 @@ function! s:feedkeys(keys)
     if type(c) == 0 && c == 0
       break
     endif
+    " Discard KE_EVENT. Other plugins calling eval can cause this
+    if type(c) == 1 && c == "\x80\xfd\x63"
+      break
+    endif
   endwhile
   call feedkeys(a:keys)
 endfunction
