@@ -8,22 +8,23 @@
 " it to work the way we like. '<C-n>' is converted to '\<C-n>' by the end and
 " the global vars are replaced by their new value. This is ok since the mapping
 " using '<C-n>' should already have completed in the plugin file.
-for key in [ 'g:multi_cursor_next_key',
+for s:key in [ 'g:multi_cursor_next_key',
            \ 'g:multi_cursor_prev_key',
            \ 'g:multi_cursor_skip_key',
            \ 'g:multi_cursor_quit_key' ]
-  if exists(key)
+  if exists(s:key)
     " Translate raw strings like "<C-n>" into key code like "\<C-n>"
-    exec 'let temp = '.key
-    if temp =~ '^<.*>$'
-      exec 'let '.key.' = "\'.temp.'"' 
+    exec 'let s:temp = '.s:key
+    if s:temp =~ '^<.*>$'
+      exec 'let '.s:key.' = "\'.s:temp.'"' 
     endif
   else
     " If the user didn't define it, initialize it to an empty string so the
     " logic later don't break
-    exec 'let '.key.' = ""'
+    exec 'let '.s:key.' = ""'
   endif
 endfor
+unlet! s:key s:temp
 
 " These keys will not be replicated at every cursor location. Make sure that
 " this assignment happens AFTER the key tweak setting above
