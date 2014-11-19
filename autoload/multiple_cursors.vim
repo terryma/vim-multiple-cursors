@@ -53,28 +53,28 @@ endif
 " Internal Mappings
 "===============================================================================
 
-inoremap <silent> <Plug>(i) <C-o>:call <SID>process_user_input()<CR>
-nnoremap <silent> <Plug>(i) :call <SID>process_user_input()<CR>
-xnoremap <silent> <Plug>(i) :<C-u>call <SID>process_user_input()<CR>
+inoremap <silent> <Plug>(multiple-cursors-input) <C-o>:call <SID>process_user_input()<CR>
+nnoremap <silent> <Plug>(multiple-cursors-input) :call <SID>process_user_input()<CR>
+xnoremap <silent> <Plug>(multiple-cursors-input) :<C-u>call <SID>process_user_input()<CR>
 
-inoremap <silent> <Plug>(a) <C-o>:call <SID>apply_user_input_next('i')<CR>
-nnoremap <silent> <Plug>(a) :call <SID>apply_user_input_next('n')<CR>
-xnoremap <silent> <Plug>(a) :<C-u>call <SID>apply_user_input_next('v')<CR>
+inoremap <silent> <Plug>(multiple-cursors-apply) <C-o>:call <SID>apply_user_input_next('i')<CR>
+nnoremap <silent> <Plug>(multiple-cursors-apply) :call <SID>apply_user_input_next('n')<CR>
+xnoremap <silent> <Plug>(multiple-cursors-apply) :<C-u>call <SID>apply_user_input_next('v')<CR>
 
-inoremap <silent> <Plug>(d) <C-o>:call <SID>detect_bad_input()<CR>
-nnoremap <silent> <Plug>(d) :call <SID>detect_bad_input()<CR>
-xnoremap <silent> <Plug>(d) :<C-u>call <SID>detect_bad_input()<CR>
+inoremap <silent> <Plug>(multiple-cursors-detect) <C-o>:call <SID>detect_bad_input()<CR>
+nnoremap <silent> <Plug>(multiple-cursors-detect) :call <SID>detect_bad_input()<CR>
+xnoremap <silent> <Plug>(multiple-cursors-detect) :<C-u>call <SID>detect_bad_input()<CR>
 
-inoremap <silent> <Plug>(w) <C-o>:call <SID>wait_for_user_input('')<CR>
-nnoremap <silent> <Plug>(w) :call <SID>wait_for_user_input('')<CR>
-xnoremap <silent> <Plug>(w) :<C-u>call <SID>wait_for_user_input('')<CR>
+inoremap <silent> <Plug>(multiple-cursors-wait) <C-o>:call <SID>wait_for_user_input('')<CR>
+nnoremap <silent> <Plug>(multiple-cursors-wait) :call <SID>wait_for_user_input('')<CR>
+xnoremap <silent> <Plug>(multiple-cursors-wait) :<C-u>call <SID>wait_for_user_input('')<CR>
 
 " Note that although these mappings are seemingly triggerd from Visual mode,
 " they are in fact triggered from Normal mode. We quit visual mode to allow the
 " virtual highlighting to take over
-nnoremap <silent> <Plug>(p) :<C-u>call multiple_cursors#prev()<CR>
-nnoremap <silent> <Plug>(s) :<C-u>call multiple_cursors#skip()<CR>
-nnoremap <silent> <Plug>(n) :<C-u>call multiple_cursors#new('v')<CR>
+nnoremap <silent> <Plug>(multiple-cursors-prev) :<C-u>call multiple_cursors#prev()<CR>
+nnoremap <silent> <Plug>(multiple-cursors-skip) :<C-u>call multiple_cursors#skip()<CR>
+nnoremap <silent> <Plug>(multiple-cursors-new) :<C-u>call multiple_cursors#new('v')<CR>
 
 "===============================================================================
 " Public Functions
@@ -797,8 +797,8 @@ function! s:process_user_input()
 
   " Apply the user input. Note that the above could potentially change mode, we
   " use the mapping below to help us determine what the new mode is
-  " Note that it's possible that \<Plug>(a) never gets called, we have a
-  " detection mechanism using \<Plug>(d). See its documentation for more details
+  " Note that it's possible that \<Plug>(multiple-cursors-apply) never gets called, we have a
+  " detection mechanism using \<Plug>(multiple-cursors-detect). See its documentation for more details
 
   " Assume that input is not valid
   let s:valid_input = 0
@@ -808,14 +808,14 @@ function! s:process_user_input()
   " FIXME(terryma): Undo always places the cursor at the beginning of the line.
   " Figure out why.
   if s:from_mode ==# 'i' || s:to_mode ==# 'i'
-    silent! undojoin | call s:feedkeys(s:char."\<Plug>(a)")
+    silent! undojoin | call s:feedkeys(s:char."\<Plug>(multiple-cursors-apply)")
   else
-    call s:feedkeys(s:char."\<Plug>(a)")
+    call s:feedkeys(s:char."\<Plug>(multiple-cursors-apply)")
   endif
 
   " Even when s:char produces invalid input, this method is always called. The
   " 't' here is important
-  call feedkeys("\<Plug>(d)", 't')
+  call feedkeys("\<Plug>(multiple-cursors-detect)", 't')
 endfunction
 
 " This method is always called during fanout, even when a bad user input causes
@@ -824,7 +824,7 @@ endfunction
 function! s:detect_bad_input()
   if !s:valid_input
     " We ignore the bad input and force invoke s:apply_user_input_next
-    call feedkeys("\<Plug>(a)")
+    call feedkeys("\<Plug>(multiple-cursors-apply)")
     let s:bad_input += 1
   endif
 endfunction
@@ -855,10 +855,10 @@ function! s:apply_user_input_next(mode)
       " This is necessary to set the "'<" and "'>" markers properly
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
-    call feedkeys("\<Plug>(w)")
+    call feedkeys("\<Plug>(multiple-cursors-wait)")
   else
     " Continue to next
-    call feedkeys("\<Plug>(i)")
+    call feedkeys("\<Plug>(multiple-cursors-input)")
   endif
 endfunction
 
@@ -929,11 +929,11 @@ function! s:handle_special_key(key, mode)
   " increasing the call stack, since feedkeys execute after the current call
   " finishes
   if a:key == g:multi_cursor_next_key
-    call s:feedkeys("\<Plug>(n)")
+    call s:feedkeys("\<Plug>(multiple-cursors-new)")
   elseif a:key == g:multi_cursor_prev_key
-    call s:feedkeys("\<Plug>(p)")
+    call s:feedkeys("\<Plug>(multiple-cursors-prev)")
   elseif a:key == g:multi_cursor_skip_key
-    call s:feedkeys("\<Plug>(s)")
+    call s:feedkeys("\<Plug>(multiple-cursors-skip)")
   endif
 endfunction
 
@@ -1088,6 +1088,6 @@ function! s:wait_for_user_input(mode)
     call s:skip_latency_measure()
   else
     call s:cm.start_loop()
-    call s:feedkeys("\<Plug>(i)")
+    call s:feedkeys("\<Plug>(multiple-cursors-input)")
   endif
 endfunction
