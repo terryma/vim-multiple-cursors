@@ -776,6 +776,10 @@ function! s:feedkeys(keys)
     elseif char_type == 1 " char with more than 8 bits (as string)
       let s:saved_keys .= c
     endif
+    " Discard KE_EVENT. Other plugins calling eval can cause this
+    if type(c) == 1 && c == "\x80\xfd\x63"
+      break
+    endif
   endwhile
   call feedkeys(a:keys)
 endfunction
