@@ -1,4 +1,4 @@
-# vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.png)](https://travis-ci.org/terryma/vim-multiple-cursors)
+# vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.svg)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
 ## INFO
 Main repository is not maintained any more, so use this fork instead and post all issues and PRs here.
