@@ -33,6 +33,9 @@ let s:settings = {
       \ 'debug_latency': 0,
       \ }
 
+let g:multi_cursor_insert_maps = get(g:, 'multi_cursor_insert_maps', {})
+let g:multi_cursor_normal_maps = get(g:, 'multi_cursor_normal_maps', {})
+
 let s:settings_if_default = {
       \ 'quit_key': '<Esc>',
       \ 'next_key': '<C-n>',
