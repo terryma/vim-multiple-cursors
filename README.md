@@ -1,33 +1,10 @@
 # vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.svg)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
-## INFO
-Main repository is not maintained any more, so use this fork instead and post all issues and PRs here.
-
-I've added two helpful functions to this fork to prevent conflicts with some other plugins (mostly autocomplete ones).
-
-For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim), add this to your vimrc to prevent conflict:
-
-````
-" Called once right before you start selecting multiple cursors
-function! Multiple_cursors_before()
-  if exists(':NeoCompleteLock')==2
-    exe 'NeoCompleteLock'
-  endif
-endfunction
-
-" Called once only when the multiple selection is canceled (default <Esc>)
-function! Multiple_cursors_after()
-  if exists(':NeoCompleteUnlock')==2
-    exe 'NeoCompleteUnlock'
-  endif
-endfunction
-````
-
-With this locking and unlocking we prevent neocomplete to trigger it's function calls until we are finished with multiple cursors editing.
-
 ###Contributors
 - [eapache](https://github.com/eapache)
 - [aschrab](https://github.com/aschrab)
+- [kristijanhusak](https://github.com/kristijanhusak)
+- [faceleg](https://github.com/faceleg)
 
 ## About
 [There](https://github.com/paradigm/vim-multicursor) [have](https://github.com/felixr/vim-multiedit) [been](https://github.com/hlissner/vim-multiedit) [many](https://github.com/adinapoli/vim-markmultiple) [attempts](https://github.com/AndrewRadev/multichange.vim) at bringing Sublime Text's awesome [multiple selection][sublime-multiple-selection] feature into Vim, but none so far have been in my opinion a faithful port that is simplistic to use, yet powerful and intuitive enough for an existing Vim user. [vim-multiple-cursors] is yet another attempt at that.
@@ -124,6 +101,36 @@ setting it to `{'d':1}` will make normal-mode mappings beginning with `d` (such
 as `dw` to delete a word) work in multi-cursor mode. You have to
 manually set this because vim doesn't provide a way to see which keys *start*
 mappings; setting it to include motion commands like `j` can break things.
+
+### Interactions with other plugins
+
+### ```Multiple_cursors_before/Multiple_cursors_after``` (Default: `nothing`)
+
+Other plugins may trigger on keypresses when in insert mode. These plugins 
+generally provide a means to toggle their active state. These hooks allow
+the user to provide functions in their .vimrc to do this when multiple-cursor-mode 
+is entered.
+
+For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim),
+add this to your vimrc to prevent conflict:
+
+```
+" Called once right before you start selecting multiple cursors
+function! Multiple_cursors_before()
+  if exists(':NeoCompleteLock')==2
+    exe 'NeoCompleteLock'
+  endif
+endfunction
+
+" Called once only when the multiple selection is canceled (default <Esc>)
+function! Multiple_cursors_after()
+  if exists(':NeoCompleteUnlock')==2
+    exe 'NeoCompleteUnlock'
+  endif
+endfunction
+```
+
+With this locking and unlocking we prevent neocomplete to trigger it's function calls until we are finished with multiple cursors editing.
 
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
