@@ -69,6 +69,13 @@ By default, the 'next' key is also used to enter multicursor mode. If you want t
 let g:multi_cursor_start_key='<F6>'
 ```
 
+Note that when multicursor mode is started, it selects current word without boundaries, i.e. it behavies like `g*`. If you want to use word boundaries in Normal mode (as `*` does) but still have old behaviour up your sleeve, you can do the following:
+```
+let g:multi_cursor_start_key='g<C-n>'
+let g:multi_cursor_start_word_key='<C-n>'
+```
+In this configuration `<C-n>` will start multicursor mode using word boundaries (but only in Normal mode, as it does not make much sense to use it in Visual mode). Old behaviour without word boundaries is still available using `g<C-n>`.
+
 **IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
 
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
