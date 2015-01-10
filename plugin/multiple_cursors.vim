@@ -64,8 +64,9 @@ endif
 if exists('g:multi_cursor_start_word_key')
   exec 'nnoremap <silent> '.g:multi_cursor_start_word_key.
         \' :call multiple_cursors#new("n", 1)<CR>'
+  " In Visual mode word boundary is not used
   exec 'xnoremap <silent> '.g:multi_cursor_start_word_key.
-        \' :<C-u>call multiple_cursors#new("v", 1)<CR>'
+        \' :<C-u>call multiple_cursors#new("v", 0)<CR>'
 endif
 
 " Commands
