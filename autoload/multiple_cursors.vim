@@ -42,6 +42,10 @@ let s:hi_group_visual = 'multiple_cursors_visual'
 " Used for preventing multiple calls on before function
 let s:before_function_called = 0
 
+" Used for searching whole words (search pattern is wrapped with \< and \>)
+" Keep old behaviour by default (act like g*)
+let s:use_word_boundary = 0
+
 " Set up highlighting
 if !hlexists(s:hi_group_cursor)
   exec "highlight ".s:hi_group_cursor." term=reverse cterm=reverse gui=reverse"
@@ -75,7 +79,8 @@ xnoremap <silent> <Plug>(multiple-cursors-wait) :<C-u>call <SID>wait_for_user_in
 " virtual highlighting to take over
 nnoremap <silent> <Plug>(multiple-cursors-prev) :<C-u>call multiple_cursors#prev()<CR>
 nnoremap <silent> <Plug>(multiple-cursors-skip) :<C-u>call multiple_cursors#skip()<CR>
-nnoremap <silent> <Plug>(multiple-cursors-new) :<C-u>call multiple_cursors#new('v')<CR>
+nnoremap <silent> <Plug>(multiple-cursors-new) :<C-u>call multiple_cursors#new('v', 0)<CR>
+nnoremap <silent> <Plug>(multiple-cursors-new-word) :<C-u>call multiple_cursors#new('v', 1)<CR>
 
 "===============================================================================
 " Public Functions
@@ -99,12 +104,13 @@ endfunction
 " 3. In visual mode, if the visual selection covers a single line, a new cursor
 " is created at the end of the visual selection. Another cursor will be
 " attempted to be created at the next occurrence of the visual selection
-function! multiple_cursors#new(mode)
+function! multiple_cursors#new(mode, word_boundary)
   " Call before function if exists only once until it is canceled (<Esc>)
   if exists('*Multiple_cursors_before') && !s:before_function_called
     exe "call Multiple_cursors_before()"
     let s:before_function_called = 1
   endif
+  let s:use_word_boundary = a:word_boundary
   if a:mode ==# 'n'
     " Reset all existing cursors, don't restore view and setting
     call s:cm.reset(0, 0)
@@ -699,7 +705,11 @@ endfunction
 " Mode change: Normal -> Normal
 " Cursor change: Set to the end of the match
 function! s:find_next(text)
-  let pattern = '\V\C'.substitute(escape(a:text, '\'), '\n', '\\n', 'g')
+  let pattern = substitute(escape(a:text, '\'), '\n', '\\n', 'g')
+  if s:use_word_boundary == 1
+      let pattern = '\<'.pattern.'\>'
+  endif
+  let pattern = '\V\C'.pattern
   call search(pattern)
   let start = s:pos('.')
   call search(pattern, 'ce')
@@ -775,10 +785,6 @@ function! s:feedkeys(keys)
       endif
     elseif char_type == 1 " char with more than 8 bits (as string)
       let s:saved_keys .= c
-    endif
-    " Discard KE_EVENT. Other plugins calling eval can cause this
-    if type(c) == 1 && c == "\x80\xfd\x63"
-      break
     endif
   endwhile
   call feedkeys(a:keys)
@@ -934,7 +940,11 @@ function! s:handle_special_key(key, mode)
   " increasing the call stack, since feedkeys execute after the current call
   " finishes
   if a:key == g:multi_cursor_next_key
-    call s:feedkeys("\<Plug>(multiple-cursors-new)")
+    if s:use_word_boundary == 1
+      call s:feedkeys("\<Plug>(multiple-cursors-new-word)")
+    else
+      call s:feedkeys("\<Plug>(multiple-cursors-new)")
+    endif
   elseif a:key == g:multi_cursor_prev_key
     call s:feedkeys("\<Plug>(multiple-cursors-prev)")
   elseif a:key == g:multi_cursor_skip_key
