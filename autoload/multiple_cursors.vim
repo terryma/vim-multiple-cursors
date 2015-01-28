@@ -458,8 +458,8 @@ function! s:CursorManager.update_current() dict
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
     call cur.remove_visual_selection()
-  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index == self.size() - 1
-    normal! `^
+  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
+    normal! h
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
