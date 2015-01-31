@@ -12,6 +12,7 @@ def get_file_content()
 end
 
 def before(string)
+  options.each { |x| vim.command(x) }
   set_file_content(string)
 end
 
@@ -29,8 +30,97 @@ def type(string)
   end
 end
 
+describe "Multiple Cursors op pending & exit from insert|visual mode" do
+  let(:filename) { 'test.txt' }
+  let(:options) { ['let g:multi_cursor_normal_maps = {"d": 1, "c": 1}',
+                   'let g:multi_cursor_exit_from_insert_mode = 0',
+                   'let g:multi_cursor_exit_from_visual_mode = 0'] }
+
+  specify "#paste buffer normal caw then p" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-v><C-n><C-n>vwcaw<Esc>bP<Esc>'
+
+    after <<-EOF
+      jan hello world
+      feb hello world
+      mar hello world
+    EOF
+  end
+
+  specify "#paste buffer normal C then ABC then p" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-v><C-n><C-n>vwCABC <Esc>p<Esc>'
+
+    after <<-EOF
+      hello ABC jan world
+      hello ABC feb world
+      hello ABC mar world
+    EOF
+  end
+
+  specify "#paste buffer normal daw then P" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-v><C-n><C-n>vwdawbP<Esc>'
+
+    after <<-EOF
+      jan hello world
+      feb hello world
+      mar hello world
+    EOF
+  end
+
+  specify "#paste buffer normal D then P" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-v><C-n><C-n>vwwhDbhP<Esc>'
+
+    after <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+  end
+
+  specify "#paste buffer normal s then p" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-v><C-n><C-n>vws1<Esc>p<Esc>'
+
+    after <<-EOF
+      hello 1jan world
+      hello 1feb world
+      hello 1mar world
+    EOF
+  end
+
+end
+
 describe "Multiple Cursors" do
   let(:filename) { 'test.txt' }
+  let(:options) { [] }
 
   specify "#paste buffer normal x then p" do
     before <<-EOF
