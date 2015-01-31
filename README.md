@@ -109,6 +109,20 @@ as `dw` to delete a word) work in multi-cursor mode. You have to
 manually set this because vim doesn't provide a way to see which keys *start*
 mappings; setting it to include motion commands like `j` can break things.
 
+### ```g:multi_cursor_paste_buffer_register``` (Defaut: `"`)
+The value of this option determines which register to use while
+saving/restoring paste buffer of the cursors. With this option you can select
+text in Visual mode, yank it, move the cursors, and paste it back. Each cursor
+will paste the text it yanked. `y` and `Y` are supported in Visual mode.
+Normal mode is supported but limited: `C`, `s`, `S`, `x`, `X`, `D` (commands
+without motions) work as usual. Only few of commands with motions are
+supported: `ci`, `ca`, `cb`, `ce`, `cw` and similar. `t`, `f`, `/` motions are
+not supported. Note that it is assumend that commands with motions such that
+`c` and `d` are added to `g:multi_cursor_normal_maps`.
+
+You should not change this option under normal circumstances. Setting value to
+empty string (`''`) completely disables invididual paste buffer functionality.
+
 ### Interactions with other plugins
 
 ### ```Multiple_cursors_before/Multiple_cursors_after``` (Default: `nothing`)

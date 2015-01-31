@@ -141,7 +141,7 @@ try.
 ==============================================================================
 4. Global Options                            *multiple-cursors-global-options* 
 
-Currently there're two additional global settings one can tweak:
+Currently there're three additional global settings one can tweak:
 
 *g:multi_cursor_exit_from_visual_mode* (Defaut: 1)
 
@@ -156,6 +156,20 @@ If set to 0, then pressing |g:multi_cursor_quit_key| in Insert mode will not
 quit and delete all existing cursors. This is useful if you want to press
 Escape and go back to Normal mode, and still be able to operate on all the
 cursors.
+
+*g:multi_cursor_paste_buffer_register* (Defaut: '"')
+The value of this option determines which register to use while
+saving/restoring paste buffer of the cursors. With this option you can select
+text in Visual mode, yank it, move the cursors, and paste it back. Each cursor
+will paste the text it yanked. `y` and `Y` are supported in Visual mode.
+Normal mode is supported but limited: `C`, `s`, `S`, `x`, `X`, `D` (commands
+without motions) work as usual. Only few of commands with motions are
+supported: `ci`, `ca`, `cb`, `ce`, `cw` and similar. `t`, `f`, `/` motions are
+not supported. Note that it is assumend that commands with motions such that
+`c` and `d` are added to |g:multi_cursor_normal_maps|.
+
+You should not change this option under normal circumstances. Setting value to
+empty string (`''`) completely disables invididual paste buffer functionality.
 
 The plugin uses the highlight group `multiple_cursors_cursor` and
 `multiple_cursors_visual` to highlight the virtual cursors and their visual

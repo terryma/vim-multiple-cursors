@@ -54,6 +54,13 @@ if !hlexists(s:hi_group_visual)
   exec "highlight link ".s:hi_group_visual." Visual"
 endif
 
+" List of operations (later compared with s:char[0]) that should trigger saving
+" of paste buffer for each cursor. The idea is to change cursor's paste buffer
+" only when operation is in fact changing unnamed cursor. Checking like this is
+" ugly and there should be a better, reliable and more portable way to do that.
+" This list is only used for checks in Normal mode.
+let s:paste_buffer_supported_operations = 'cCsSxXdD'
+
 "===============================================================================
 " Internal Mappings
 "===============================================================================
@@ -250,6 +257,9 @@ function! s:Cursor.new(position)
   let obj = copy(self)
   let obj.position = copy(a:position)
   let obj.visual = []
+  " Stores text that was yanked after y, c, s, x, d commands
+  let obj.paste_buffer_text = ''
+  let obj.paste_buffer_type = ''
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
   let obj.line_length = col([a:position[0], '$'])
@@ -317,6 +327,19 @@ function! s:Cursor.remove_visual_selection() dict
   let self.visual_hi_id = 0
 endfunction
 
+" Save contents of the unnamed register into variable
+function! s:Cursor.save_paste_buffer() dict
+  let self.paste_buffer_text = getreg(g:multi_cursor_paste_buffer_register)
+  let self.paste_buffer_type = getregtype(g:multi_cursor_paste_buffer_register)
+endfunction
+
+" Restore contents of the unnamed register from variable
+function! s:Cursor.restore_paste_buffer() dict
+  call setreg(g:multi_cursor_paste_buffer_register,
+    \ self.paste_buffer_text,
+    \ self.paste_buffer_type)
+endfunction
+
 "===============================================================================
 " CursorManager class
 "===============================================================================
@@ -337,6 +360,7 @@ function! s:CursorManager.new()
         \ 'cursorline': &cursorline,
         \ 'lazyredraw': &lazyredraw,
         \ 'paste': &paste,
+        \ 'clipboard': &clipboard,
         \ }
   " We save the window view when multicursor mode is entered
   let obj.saved_winview = []
@@ -457,9 +481,27 @@ function! s:CursorManager.update_current() dict
     exec "normal! gv\<Esc>"
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
+    " Save contents of unnamed register after each operation in Visual mode.
+    " This should be executed after user input is processed, when unnamed
+    " register already contains the text.
+    if s:individual_paste_buffer_enabled()
+      call cur.save_paste_buffer()
+    endif
+
     call cur.remove_visual_selection()
   elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
     normal! h
+  elseif s:from_mode ==# 'n'
+    " Save contents of unnamed register after each supported operation in Normal
+    " mode. Paste buffer should be saved only if we are about to perform a
+    " supported operation that is known to change unnamed register. List of
+    " supported operations is fixed and defined above.
+    " This is ugly and can probably be done more elegantly and reliably.
+    if s:individual_paste_buffer_enabled()
+      if strridx(s:paste_buffer_supported_operations, s:char[0]) >= 0
+        call cur.save_paste_buffer()
+      endif
+    endif
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -543,15 +585,19 @@ endfunction
 " cursors on screen
 " paste mode needs to be switched off since it turns off a bunch of features
 " that's critical for the plugin to function
+" clipboard should not have unnamed and unnamedplus otherwise plugin cannot
+" reliably use unnamed register ('"')
 function! s:CursorManager.initialize() dict
   let self.saved_settings['virtualedit'] = &virtualedit
   let self.saved_settings['cursorline'] = &cursorline
   let self.saved_settings['lazyredraw'] = &lazyredraw
   let self.saved_settings['paste'] = &paste
+  let self.saved_settings['clipboard'] = &clipboard
   let &virtualedit = "onemore"
   let &cursorline = 0
   let &lazyredraw = 1
   let &paste = 0
+  set clipboard-=unnamed clipboard-=unnamedplus
   " We could have already saved the view from multiple_cursors#find
   if !self.start_from_find
     let self.saved_winview = winsaveview()
@@ -565,6 +611,7 @@ function! s:CursorManager.restore_user_settings() dict
     let &cursorline = self.saved_settings['cursorline']
     let &lazyredraw = self.saved_settings['lazyredraw']
     let &paste = self.saved_settings['paste']
+    let &clipboard = self.saved_settings['clipboard']
   endif
 endfunction
 
@@ -805,6 +852,14 @@ function! s:process_user_input()
   " a better place to do this?
   call s:cm.get_current().update_line_length()
   let s:saved_linecount = line('$')
+
+  " Restore unnamed register only in Normal mode and when user pressed p or P.
+  " This should happen before user input is processed.
+  if s:from_mode ==# 'n' && s:char ==? 'p'
+    if s:individual_paste_buffer_enabled()
+      call s:cm.get_current().restore_paste_buffer()
+    endif
+  endif
 
   " Apply the user input. Note that the above could potentially change mode, we
   " use the mapping below to help us determine what the new mode is
@@ -1105,4 +1160,11 @@ function! s:wait_for_user_input(mode)
     call s:cm.start_loop()
     call s:feedkeys("\<Plug>(multiple-cursors-input)")
   endif
+endfunction
+
+" Helper to check if functionality of individual paste buffer for each cursor is
+" enabled (whether it should be saved/restored on each operation that changes
+" unnamed register).
+function! s:individual_paste_buffer_enabled()
+  return strlen(g:multi_cursor_paste_buffer_register)
 endfunction

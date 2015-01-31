@@ -49,6 +49,13 @@ if g:multi_cursor_use_default_mapping
   call s:init_settings(s:settings_if_default)
 endif
 
+" Register which is saved and restored after a cursor performed unnamed register
+" changing operations. Default value is unnamed register ('"'). Sometimes you
+" might want to change this to '+' register.
+if !exists('g:multi_cursor_paste_buffer_register')
+  let g:multi_cursor_paste_buffer_register = '"'
+endif
+
 if !exists('g:multi_cursor_start_key') && exists('g:multi_cursor_next_key')
   let g:multi_cursor_start_key = g:multi_cursor_next_key
 endif
