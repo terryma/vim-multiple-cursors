@@ -32,6 +32,73 @@ end
 describe "Multiple Cursors" do
   let(:filename) { 'test.txt' }
 
+  specify "#paste buffer normal x then p" do
+    before <<-EOF
+      jan
+      feb
+      mar
+    EOF
+
+    type '<C-v>jj<C-n>xp<Esc>'
+
+    after <<-EOF
+      ajn
+      efb
+      amr
+    EOF
+  end
+
+  specify "#paste buffer visual y then p" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>vwvelywhp<Esc>'
+
+    after <<-EOF
+      hello jan jan world
+      hello feb feb world
+      hello mar mar world
+    EOF
+  end
+
+  specify "#paste buffer visual y then P" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>vwvely^P<Esc>'
+
+    after <<-EOF
+      jan hello jan world
+      feb hello feb world
+      mar hello mar world
+    EOF
+  end
+
+  specify "#paste buffer visual Y then P" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>vwvY^P<Esc>'
+
+    after <<-EOF
+      hello jan world
+      hello jan world
+      hello feb world
+      hello feb world
+      hello mar world
+      hello mar world
+    EOF
+  end
+
   specify "#multiline replacement" do
     before <<-EOF
       hello
