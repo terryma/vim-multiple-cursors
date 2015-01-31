@@ -50,8 +50,8 @@ if g:multi_cursor_use_default_mapping
 endif
 
 " Register which is saved and restored after a cursor performed unnamed register
-" changing operations. Default value is unnamed register ('"'). Sometimes you
-" might want to change this to '+' register.
+" changing operations. Default value is unnamed register ('"'). Normally you
+" don't want to change this option.
 if !exists('g:multi_cursor_paste_buffer_register')
   let g:multi_cursor_paste_buffer_register = '"'
 endif
