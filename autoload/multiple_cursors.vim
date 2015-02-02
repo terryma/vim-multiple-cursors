@@ -236,6 +236,14 @@ function! multiple_cursors#find(start, end, pattern)
     return
   else
     echohl Normal | echo 'Added '.s:cm.size().' cursor'.(s:cm.size()>1?'s':'') | echohl None
+
+    " If we've created any cursors, we need to call the before function, end
+    " function will be called via normal routes
+    if exists('*Multiple_cursors_before') && !s:before_function_called
+      exe "call Multiple_cursors_before()"
+      let s:before_function_called = 1
+    endif
+
     call s:wait_for_user_input('v')
   endif
 endfunction
