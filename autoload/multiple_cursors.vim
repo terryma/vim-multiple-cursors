@@ -329,15 +329,13 @@ endfunction
 
 " Save contents of the unnamed register into variable
 function! s:Cursor.save_paste_buffer() dict
-  let self.paste_buffer_text = getreg(g:multi_cursor_paste_buffer_register)
-  let self.paste_buffer_type = getregtype(g:multi_cursor_paste_buffer_register)
+  let self.paste_buffer_text = getreg('"')
+  let self.paste_buffer_type = getregtype('"')
 endfunction
 
 " Restore contents of the unnamed register from variable
 function! s:Cursor.restore_paste_buffer() dict
-  call setreg(g:multi_cursor_paste_buffer_register,
-    \ self.paste_buffer_text,
-    \ self.paste_buffer_type)
+  call setreg('"', self.paste_buffer_text, self.paste_buffer_type)
 endfunction
 
 "===============================================================================
@@ -484,9 +482,7 @@ function! s:CursorManager.update_current() dict
     " Save contents of unnamed register after each operation in Visual mode.
     " This should be executed after user input is processed, when unnamed
     " register already contains the text.
-    if s:individual_paste_buffer_enabled()
-      call cur.save_paste_buffer()
-    endif
+    call cur.save_paste_buffer()
 
     call cur.remove_visual_selection()
   elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
@@ -497,10 +493,8 @@ function! s:CursorManager.update_current() dict
     " supported operation that is known to change unnamed register. List of
     " supported operations is fixed and defined above.
     " This is ugly and can probably be done more elegantly and reliably.
-    if s:individual_paste_buffer_enabled()
-      if strridx(s:paste_buffer_supported_operations, s:char[0]) >= 0
-        call cur.save_paste_buffer()
-      endif
+    if strridx(s:paste_buffer_supported_operations, s:char[0]) >= 0
+      call cur.save_paste_buffer()
     endif
   endif
   let vdelta = line('$') - s:saved_linecount
@@ -856,9 +850,7 @@ function! s:process_user_input()
   " Restore unnamed register only in Normal mode and when user pressed p or P.
   " This should happen before user input is processed.
   if s:from_mode ==# 'n' && s:char ==? 'p'
-    if s:individual_paste_buffer_enabled()
-      call s:cm.get_current().restore_paste_buffer()
-    endif
+    call s:cm.get_current().restore_paste_buffer()
   endif
 
   " Apply the user input. Note that the above could potentially change mode, we
@@ -1160,11 +1152,4 @@ function! s:wait_for_user_input(mode)
     call s:cm.start_loop()
     call s:feedkeys("\<Plug>(multiple-cursors-input)")
   endif
-endfunction
-
-" Helper to check if functionality of individual paste buffer for each cursor is
-" enabled (whether it should be saved/restored on each operation that changes
-" unnamed register).
-function! s:individual_paste_buffer_enabled()
-  return strlen(g:multi_cursor_paste_buffer_register)
 endfunction
