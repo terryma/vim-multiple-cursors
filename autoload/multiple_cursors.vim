@@ -54,13 +54,6 @@ if !hlexists(s:hi_group_visual)
   exec "highlight link ".s:hi_group_visual." Visual"
 endif
 
-" List of operations (later compared with s:char[0]) that should trigger saving
-" of paste buffer for each cursor. The idea is to change cursor's paste buffer
-" only when operation is in fact changing unnamed cursor. Checking like this is
-" ugly and there should be a better, reliable and more portable way to do that.
-" This list is only used for checks in Normal mode.
-let s:paste_buffer_supported_operations = 'cCsSxXdDyY'
-
 "===============================================================================
 " Internal Mappings
 "===============================================================================
@@ -257,8 +250,9 @@ function! s:Cursor.new(position)
   let obj = copy(self)
   let obj.position = copy(a:position)
   let obj.visual = []
-  " Stores text that was yanked after y, c, s, x, d commands
-  let obj.paste_buffer_text = ''
+  " Stores text that was yanked after any commands in Normal or Visual mode
+  let obj.paste_buffer_text = @"
+  let obj.paste_buffer_temporary = ''
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
   let obj.line_length = col([a:position[0], '$'])
@@ -328,12 +322,14 @@ endfunction
 
 " Save contents of the unnamed register into variable
 function! s:Cursor.save_paste_buffer() dict
-  let self.paste_buffer_text = @"
+  let self.paste_buffer_temporary = @"
+  let @" = self.paste_buffer_text
 endfunction
 
 " Restore contents of the unnamed register from variable
 function! s:Cursor.restore_paste_buffer() dict
-  let @" = self.paste_buffer_text
+  let self.paste_buffer_text = @"
+  let @" = self.paste_buffer_temporary
 endfunction
 
 "===============================================================================
@@ -486,14 +482,8 @@ function! s:CursorManager.update_current() dict
   elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
     normal! h
   elseif s:from_mode ==# 'n'
-    " Save contents of unnamed register after each supported operation in Normal
-    " mode. Paste buffer should be saved only if we are about to perform a
-    " supported operation that is known to change unnamed register. List of
-    " supported operations is fixed and defined above.
-    " This is ugly and can probably be done more elegantly and reliably.
-    if strridx(s:paste_buffer_supported_operations, s:char[0]) >= 0
-      call cur.save_paste_buffer()
-    endif
+    " Save contents of unnamed register after each operation in Normal mode.
+    call cur.save_paste_buffer()
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -845,9 +835,9 @@ function! s:process_user_input()
   call s:cm.get_current().update_line_length()
   let s:saved_linecount = line('$')
 
-  " Restore unnamed register only in Normal mode and when user pressed p or P.
-  " This should happen before user input is processed.
-  if s:from_mode ==# 'n' && s:char ==? 'p'
+  " Restore unnamed register only in Normal mode. This should happen before user
+  " input is processed.
+  if s:from_mode ==# 'n'
     call s:cm.get_current().restore_paste_buffer()
   endif
 
