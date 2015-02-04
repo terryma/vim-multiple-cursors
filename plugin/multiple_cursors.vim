@@ -52,9 +52,7 @@ endif
 " Register which is saved and restored after a cursor performed unnamed register
 " changing operations. Default value is unnamed register ('"'). Normally you
 " don't want to change this option.
-if !exists('g:multi_cursor_paste_buffer_register')
-  let g:multi_cursor_paste_buffer_register = '"'
-endif
+let g:multi_cursor_paste_buffer_register = '"'
 
 if !exists('g:multi_cursor_start_key') && exists('g:multi_cursor_next_key')
   let g:multi_cursor_start_key = g:multi_cursor_next_key
