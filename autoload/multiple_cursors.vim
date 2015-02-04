@@ -993,7 +993,9 @@ endfunction
 
 let s:retry_keys = ""
 function! s:display_error()
-  if s:bad_input == s:cm.size() && has_key(g:multi_cursor_normal_maps, s:char[0])
+  if s:bad_input == s:cm.size()
+        \ && s:from_mode ==# 'n'
+        \ && has_key(g:multi_cursor_normal_maps, s:char[0])
     " we couldn't replay it anywhere but we're told it's the beginning of a
     " multi-character map like the `d` in `dw`
     let s:retry_keys = s:char
@@ -1045,13 +1047,13 @@ function! s:last_char()
 endfunction
 
 function! s:wait_for_user_input(mode)
+  call s:display_error()
+
   let s:from_mode = a:mode
   if empty(a:mode)
     let s:from_mode = s:to_mode
   endif
   let s:to_mode = ''
-
-  call s:display_error()
 
   " Right before redraw, apply the highlighting bug fix
   call s:apply_highlight_fix()
