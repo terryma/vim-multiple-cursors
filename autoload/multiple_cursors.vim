@@ -259,7 +259,6 @@ function! s:Cursor.new(position)
   let obj.visual = []
   " Stores text that was yanked after y, c, s, x, d commands
   let obj.paste_buffer_text = ''
-  let obj.paste_buffer_type = ''
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
   let obj.line_length = col([a:position[0], '$'])
@@ -329,13 +328,12 @@ endfunction
 
 " Save contents of the unnamed register into variable
 function! s:Cursor.save_paste_buffer() dict
-  let self.paste_buffer_text = getreg('"')
-  let self.paste_buffer_type = getregtype('"')
+  let self.paste_buffer_text = @"
 endfunction
 
 " Restore contents of the unnamed register from variable
 function! s:Cursor.restore_paste_buffer() dict
-  call setreg('"', self.paste_buffer_text, self.paste_buffer_type)
+  let @" = self.paste_buffer_text
 endfunction
 
 "===============================================================================
