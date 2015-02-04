@@ -59,7 +59,7 @@ endif
 " only when operation is in fact changing unnamed cursor. Checking like this is
 " ugly and there should be a better, reliable and more portable way to do that.
 " This list is only used for checks in Normal mode.
-let s:paste_buffer_supported_operations = 'cCsSxXdD'
+let s:paste_buffer_supported_operations = 'cCsSxXdDyY'
 
 "===============================================================================
 " Internal Mappings
