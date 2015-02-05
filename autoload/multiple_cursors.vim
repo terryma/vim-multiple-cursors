@@ -861,7 +861,7 @@ function! s:process_user_input()
 
   " Restore unnamed register only in Normal mode. This should happen before user
   " input is processed.
-  if s:from_mode ==# 'n'
+  if s:from_mode ==# 'n' || s:from_mode ==# 'v' || s:from_mode ==# 'V'
     call s:cm.get_current().restore_unnamed_register()
   endif
 
