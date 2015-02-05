@@ -56,7 +56,8 @@ endif
 
 " Temporary buffer that is used for individual paste buffer save/restore
 " operations
-let s:paste_buffer_temporary = ''
+let s:paste_buffer_temporary_text = ''
+let s:paste_buffer_temporary_type = ''
 
 "===============================================================================
 " Internal Mappings
@@ -255,7 +256,8 @@ function! s:Cursor.new(position)
   let obj.position = copy(a:position)
   let obj.visual = []
   " Stores text that was yanked after any commands in Normal or Visual mode
-  let obj.paste_buffer_text = @"
+  let obj.paste_buffer_text = getreg('"')
+  let obj.paste_buffer_type = getregtype('"')
   let obj.cursor_hi_id = s:highlight_cursor(a:position)
   let obj.visual_hi_id = 0
   let obj.line_length = col([a:position[0], '$'])
@@ -326,15 +328,19 @@ endfunction
 " Save contents of the unnamed register into temporary variable and restore
 " register from paste buffer
 function! s:Cursor.save_paste_buffer() dict
-  let s:paste_buffer_temporary = @"
-  let @" = self.paste_buffer_text
+  let s:paste_buffer_temporary_text = getreg('"')
+  let s:paste_buffer_temporary_type = getregtype('"')
+
+  call setreg('"', self.paste_buffer_text, self.paste_buffer_type)
 endfunction
 
 " Save contents of the unnamed register into paste buffer and restore register
 " from temporary variable
 function! s:Cursor.restore_paste_buffer() dict
-  let self.paste_buffer_text = @"
-  let @" = s:paste_buffer_temporary
+  let self.paste_buffer_text = getreg('"')
+  let self.paste_buffer_type = getregtype('"')
+
+  call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
 "===============================================================================
