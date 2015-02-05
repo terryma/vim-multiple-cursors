@@ -320,13 +320,15 @@ function! s:Cursor.remove_visual_selection() dict
   let self.visual_hi_id = 0
 endfunction
 
-" Save contents of the unnamed register into variable
+" Save contents of the unnamed register into temporary variable and restore
+" register from paste buffer
 function! s:Cursor.save_paste_buffer() dict
   let self.paste_buffer_temporary = @"
   let @" = self.paste_buffer_text
 endfunction
 
-" Restore contents of the unnamed register from variable
+" Save contents of the unnamed register into paste buffer and restore register
+" from temporary variable
 function! s:Cursor.restore_paste_buffer() dict
   let self.paste_buffer_text = @"
   let @" = self.paste_buffer_temporary
@@ -473,17 +475,17 @@ function! s:CursorManager.update_current() dict
     exec "normal! gv\<Esc>"
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
-    " Save contents of unnamed register after each operation in Visual mode.
+    " Restore contents of unnamed register after each operation in Visual mode.
     " This should be executed after user input is processed, when unnamed
     " register already contains the text.
-    call cur.save_paste_buffer()
+    call cur.restore_paste_buffer()
 
     call cur.remove_visual_selection()
   elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
     normal! h
   elseif s:from_mode ==# 'n'
-    " Save contents of unnamed register after each operation in Normal mode.
-    call cur.save_paste_buffer()
+    " Restore contents of unnamed register after each operation in Normal mode.
+    call cur.restore_paste_buffer()
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -835,10 +837,10 @@ function! s:process_user_input()
   call s:cm.get_current().update_line_length()
   let s:saved_linecount = line('$')
 
-  " Restore unnamed register only in Normal mode. This should happen before user
+  " Save unnamed register only in Normal mode. This should happen before user
   " input is processed.
   if s:from_mode ==# 'n'
-    call s:cm.get_current().restore_paste_buffer()
+    call s:cm.get_current().save_paste_buffer()
   endif
 
   " Apply the user input. Note that the above could potentially change mode, we
