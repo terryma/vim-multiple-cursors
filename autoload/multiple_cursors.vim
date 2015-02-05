@@ -325,22 +325,15 @@ function! s:Cursor.remove_visual_selection() dict
   let self.visual_hi_id = 0
 endfunction
 
-" Save contents of the unnamed register into temporary variable and restore
-" register from paste buffer
+" Restore unnamed register from paste buffer
 function! s:Cursor.save_paste_buffer() dict
-  let s:paste_buffer_temporary_text = getreg('"')
-  let s:paste_buffer_temporary_type = getregtype('"')
-
   call setreg('"', self.paste_buffer_text, self.paste_buffer_type)
 endfunction
 
-" Save contents of the unnamed register into paste buffer and restore register
-" from temporary variable
+" Save contents of the unnamed register into paste buffer
 function! s:Cursor.restore_paste_buffer() dict
   let self.paste_buffer_text = getreg('"')
   let self.paste_buffer_type = getregtype('"')
-
-  call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
 "===============================================================================
@@ -595,6 +588,11 @@ function! s:CursorManager.initialize() dict
   if !self.start_from_find
     let self.saved_winview = winsaveview()
   endif
+
+  " Save contents and type of unnamed register upon entering multicursor mode
+  " to restore it later when leaving mode
+  let s:paste_buffer_temporary_text = getreg('"')
+  let s:paste_buffer_temporary_type = getregtype('"')
 endfunction
 
 " Restore user settings.
@@ -606,6 +604,13 @@ function! s:CursorManager.restore_user_settings() dict
     let &paste = self.saved_settings['paste']
     let &clipboard = self.saved_settings['clipboard']
   endif
+
+  " Restore original contents and type of unnamed register. This method is
+  " called from reset, which calls us only when restore_setting argument is
+  " true, which happens only when we leave multicursor mode. This should be
+  " symmetrical to saving of unnamed register upon the start of multicursor
+  " mode.
+  call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
 " Reselect the current cursor's region in visual mode
