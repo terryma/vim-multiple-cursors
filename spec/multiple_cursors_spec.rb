@@ -61,7 +61,7 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
       hello mar world
     EOF
 
-    type '<C-v><C-n><C-n>vwcaw<Esc>bP<Esc>'
+    type '<C-n><C-n><C-n>vwcaw<Esc>bP<Esc>'
 
     after <<-EOF
       jan hello world
@@ -77,7 +77,7 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
       hello mar world
     EOF
 
-    type '<C-v><C-n><C-n>vwCABC <Esc>p<Esc>'
+    type '<C-n><C-n><C-n>vwCABC <Esc>p<Esc>'
 
     after <<-EOF
       hello ABC jan world
@@ -93,7 +93,7 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
       hello mar world
     EOF
 
-    type '<C-v><C-n><C-n>vwdawbP<Esc>'
+    type '<C-n><C-n><C-n>vwdawbP<Esc>'
 
     after <<-EOF
       jan hello world
@@ -109,7 +109,7 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
       hello mar world
     EOF
 
-    type '<C-v><C-n><C-n>vwwhDbhP<Esc>'
+    type '<C-n><C-n><C-n>vwwhDbhP<Esc>'
 
     after <<-EOF
       hello world jan
@@ -125,7 +125,7 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
       hello mar world
     EOF
 
-    type '<C-v><C-n><C-n>vws1<Esc>p<Esc>'
+    type '<C-n><C-n><C-n>vws1<Esc>p<Esc>'
 
     after <<-EOF
       hello 1jan world
