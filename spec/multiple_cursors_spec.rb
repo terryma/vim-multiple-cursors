@@ -172,6 +172,22 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#paste buffer initial visual y then P" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type 'wywb<C-n><C-n><C-n>p<Esc>'
+
+    after <<-EOF
+      jan  jan world
+      jan  feb world
+      jan  mar world
+    EOF
+  end
+
   specify "#paste buffer visual y then P" do
     before <<-EOF
       hello jan world
