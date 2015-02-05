@@ -36,6 +36,24 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
                    'let g:multi_cursor_exit_from_insert_mode = 0',
                    'let g:multi_cursor_exit_from_visual_mode = 0'] }
 
+  specify "#paste from unnamed register to 3 cursors" do
+    before <<-EOF
+      yankme
+      a b c
+      a b c
+      a b c
+    EOF
+
+    type 'yiwj<C-n><C-n><C-n>vwwp<Esc>'
+
+    after <<-EOF
+      yankme
+      a b cyankme
+      a b cyankme
+      a b cyankme
+    EOF
+  end
+
   specify "#paste buffer normal caw then p" do
     before <<-EOF
       hello jan world
