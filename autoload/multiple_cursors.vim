@@ -326,12 +326,12 @@ function! s:Cursor.remove_visual_selection() dict
 endfunction
 
 " Restore unnamed register from paste buffer
-function! s:Cursor.save_paste_buffer() dict
+function! s:Cursor.restore_unnamed_register() dict
   call setreg('"', self.paste_buffer_text, self.paste_buffer_type)
 endfunction
 
 " Save contents of the unnamed register into paste buffer
-function! s:Cursor.restore_paste_buffer() dict
+function! s:Cursor.save_unnamed_register() dict
   let self.paste_buffer_text = getreg('"')
   let self.paste_buffer_type = getregtype('"')
 endfunction
@@ -477,17 +477,17 @@ function! s:CursorManager.update_current() dict
     exec "normal! gv\<Esc>"
     call cur.update_visual_selection(s:get_visual_region(s:pos('.')))
   elseif s:from_mode ==# 'v' || s:from_mode ==# 'V'
-    " Restore contents of unnamed register after each operation in Visual mode.
+    " Save contents of unnamed register after each operation in Visual mode.
     " This should be executed after user input is processed, when unnamed
     " register already contains the text.
-    call cur.restore_paste_buffer()
+    call cur.save_unnamed_register()
 
     call cur.remove_visual_selection()
   elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
     normal! h
   elseif s:from_mode ==# 'n'
-    " Restore contents of unnamed register after each operation in Normal mode.
-    call cur.restore_paste_buffer()
+    " Save contents of unnamed register after each operation in Normal mode.
+    call cur.save_unnamed_register()
   endif
   let vdelta = line('$') - s:saved_linecount
   " If the total number of lines changed in the buffer, we need to potentially
@@ -851,10 +851,10 @@ function! s:process_user_input()
   call s:cm.get_current().update_line_length()
   let s:saved_linecount = line('$')
 
-  " Save unnamed register only in Normal mode. This should happen before user
+  " Restore unnamed register only in Normal mode. This should happen before user
   " input is processed.
   if s:from_mode ==# 'n'
-    call s:cm.get_current().save_paste_buffer()
+    call s:cm.get_current().restore_unnamed_register()
   endif
 
   " Apply the user input. Note that the above could potentially change mode, we
