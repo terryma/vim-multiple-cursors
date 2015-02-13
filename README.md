@@ -159,7 +159,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 As one can see, there're still many issues to be resolved, patches and suggestions are always welcome! A list of open feature requests can be found [here](../../issues?labels=enhancement&state=open).
 
 ## Credit
-Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selection] feature, also encouraged by Emac's [multiple cursors][emacs-multiple-cursors] implemetation by Magnar Sveen
+Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selection] feature, also encouraged by Emac's [multiple cursors][emacs-multiple-cursors] implementation by Magnar Sveen
 
 [vim-multiple-cursors]:http://github.com/terryma/vim-multiple-cursors
 [sublime-multiple-selection]:http://www.sublimetext.com/docs/2/multiple_selection_with_the_keyboard.html
