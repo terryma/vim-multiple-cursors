@@ -158,6 +158,9 @@ See [CHANGELOG.md](CHANGELOG.md)
 ## Contributing
 As one can see, there're still many issues to be resolved, patches and suggestions are always welcome! A list of open feature requests can be found [here](../../issues?labels=enhancement&state=open).
 
+Running the test suite requires ruby and rake as well as vim of course. On Mac
+OS, [MacVim](https://code.google.com/p/macvim/) is known to work.
+
 ## Credit
 Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selection] feature, also encouraged by Emac's [multiple cursors][emacs-multiple-cursors] implementation by Magnar Sveen
 
