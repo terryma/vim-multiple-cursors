@@ -84,9 +84,9 @@ In this configuration `<C-n>` will start multicursor mode using word boundaries 
 **NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
 ## Setting
-Currently there're three additional global settings one can tweak:
-### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
+Currently there are four additional global settings one can tweak:
 
+### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
 If set to 0, then pressing `g:multi_cursor_quit_key` in _Visual_ mode will not quit and delete all existing cursors. This is useful if you want to press Escape and go back to Normal mode, and still be able to operate on all the cursors.
 
 ### ```g:multi_cursor_exit_from_insert_mode``` (Default: 1)
