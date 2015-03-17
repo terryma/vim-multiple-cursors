@@ -1,5 +1,19 @@
 # vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.svg)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
+## Sections
+ - [About](#about)
+ - [Features](#features)
+ - [Installation](#installation)
+ - [Quick Start](#quick-start)
+ - [Mapping](#mapping)
+ - [Settings](#settings)
+ - [Interactions with other plugins](#interactions-with-other-plugins)
+ - [Highlight](#highlight)
+ - *[Known Issues](#known-issues)*
+ - [Changelog](#changelog)
+ - [Contributing](#contributing)
+ - [Credit](#credit) 
+
 ###Contributors
 - [eapache](https://github.com/eapache)
 - [aschrab](https://github.com/aschrab)
@@ -83,7 +97,7 @@ In this configuration `<C-n>` will start multicursor mode using word boundaries 
 
 **NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
-## Setting
+## Settings
 Currently there are four additional global settings one can tweak:
 
 ### ```g:multi_cursor_exit_from_visual_mode``` (Default: 1)
@@ -149,8 +163,9 @@ highlight multiple_cursors_cursor term=reverse cterm=reverse gui=reverse
 highlight link multiple_cursors_visual Visual
 ```
 
-## Issues
+## Known Issues
 - Select mode is not implemented
+- I and A do not work in Visual mode yet (See #55)
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
