@@ -1,6 +1,6 @@
 # vim-multiple-cursors [![Build Status](https://travis-ci.org/terryma/vim-multiple-cursors.svg)](https://travis-ci.org/terryma/vim-multiple-cursors)
 
-## Sections
+## Contents
  - [About](#about)
  - [Features](#features)
  - [Installation](#installation)
