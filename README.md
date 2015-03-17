@@ -166,6 +166,8 @@ highlight link multiple_cursors_visual Visual
 ## Known Issues
 - Select mode is not implemented
 - I and A do not work in Visual mode yet (See #55)
+  
+ Single key command to switch to Insert mode such as c or s from Visual mode or i, a, I, A in Normal mode should work without any issues. **NOTE**: vim's Visual block mode also supports I and A commands, however they do not work in this plugin's Visual mode at the moment. For now, to use I and A, switch to normal mode by pressing v first.
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
