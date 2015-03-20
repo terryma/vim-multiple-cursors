@@ -170,6 +170,11 @@ function! multiple_cursors#new(mode, word_boundary)
   endif
 endfunction
 
+" Quit out of multicursor mode, fixes #27.
+function! multiple_cursors#quit()
+  call s:exit()
+endfunction
+
 " Delete the current cursor. If there's no more cursors, stop the loop
 function! multiple_cursors#prev()
   call s:cm.delete_current()
