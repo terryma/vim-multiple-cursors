@@ -97,9 +97,10 @@ In this configuration `<C-n>` will start multicursor mode using word boundaries 
 
 **NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
 
-You can also map your own keys to quit:
+You can also map your own keys to quit, if ``g:multi_cursor_quit_key`` won't work:
 
 ```
+let g:multi_cursor_quit_key='<C-c>'
 nnoremap <C-c> :call multiple_cursors#quit()<CR>
 ```
 
