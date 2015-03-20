@@ -65,12 +65,12 @@ You can also add multiple cursors using a regular expression. The command `Multi
 
 ## Mapping
 Out of the box, only the single key `Ctrl-n` is mapped in regular Vim's Normal mode and Visual mode to provide the functionality mentioned above. `Ctrl-n`, `Ctrl-p`, `Ctrl-x`, and `<Esc>` are mapped in the special multicursor mode once you've added at least one virtual cursor to the buffer. If you don't like the plugin taking over your favorite key bindings, you can turn off the default with
-```
+```viml
 let g:multi_cursor_use_default_mapping=0
 ```
 
 You can then map the 'next', 'previous', 'skip', and 'exit' keys like the following:
-```
+```viml
 " Default mapping
 let g:multi_cursor_next_key='<C-n>'
 let g:multi_cursor_prev_key='<C-p>'
@@ -79,13 +79,13 @@ let g:multi_cursor_quit_key='<Esc>'
 ```
 
 By default, the 'next' key is also used to enter multicursor mode. If you want to use a different key to start multicursor mode than for selecting the next location, do like the following:
-```
+```viml
 " Map start key separately from next key
 let g:multi_cursor_start_key='<F6>'
 ```
 
 Note that when multicursor mode is started, it selects current word without boundaries, i.e. it behaves like `g*`. If you want to use word boundaries in Normal mode (as `*` does) but still have old behaviour up your sleeve, you can do the following:
-```
+```viml
 let g:multi_cursor_start_key='g<C-n>'
 let g:multi_cursor_start_word_key='<C-n>'
 ```
@@ -136,7 +136,7 @@ is entered.
 For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim),
 add this to your vimrc to prevent conflict:
 
-```
+```viml
 " Called once right before you start selecting multiple cursors
 function! Multiple_cursors_before()
   if exists(':NeoCompleteLock')==2
@@ -157,7 +157,7 @@ With this locking and unlocking we prevent neocomplete to trigger it's function 
 ### Highlight
 The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_cursors_visual` to highlight the virtual cursors and their visual selections respectively. You can customize them by putting something similar like the following in your vimrc:
 
-```
+```viml
 " Default highlighting (see help :highlight and help :highlight-link)
 highlight multiple_cursors_cursor term=reverse cterm=reverse gui=reverse
 highlight link multiple_cursors_visual Visual
