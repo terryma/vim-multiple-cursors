@@ -9,6 +9,7 @@
  - [Settings](#settings)
  - [Interactions with other plugins](#interactions-with-other-plugins)
  - [Highlight](#highlight)
+ - *[FAQ](#faq)*
  - *[Known Issues](#known-issues)*
  - [Changelog](#changelog)
  - [Contributing](#contributing)
@@ -162,6 +163,12 @@ The plugin uses the highlight group `multiple_cursors_cursor` and `multiple_curs
 highlight multiple_cursors_cursor term=reverse cterm=reverse gui=reverse
 highlight link multiple_cursors_visual Visual
 ```
+
+## FAQ
+
+**Q** <kbd>CTRL</kbd>+<kbd>n</kbd> doesn't seem to work in gVIM?
+
+**A** Try setting `set selection=inclusive` in your `~/.gvimrc`
 
 ## Known Issues
 - Select mode is not implemented
