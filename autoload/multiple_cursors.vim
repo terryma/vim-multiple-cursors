@@ -44,7 +44,7 @@ let s:before_function_called = 0
 
 " Used for searching whole words (search pattern is wrapped with \< and \>)
 " Keep old behaviour by default (act like g*)
-let s:use_word_boundary = 0
+let s:use_word_boundary = 1
 
 " Set up highlighting
 if !hlexists(s:hi_group_cursor)

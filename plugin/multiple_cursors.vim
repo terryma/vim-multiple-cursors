@@ -49,8 +49,8 @@ if g:multi_cursor_use_default_mapping
   call s:init_settings(s:settings_if_default)
 endif
 
-if !exists('g:multi_cursor_start_key') && exists('g:multi_cursor_next_key')
-  let g:multi_cursor_start_key = g:multi_cursor_next_key
+if !exists('g:multi_cursor_start_word_key') && exists('g:multi_cursor_next_key')
+  let g:multi_cursor_start_word_key = g:multi_cursor_next_key
 endif
 
 " External mappings
@@ -70,7 +70,7 @@ if exists('g:multi_cursor_start_word_key')
 endif
 
 " Commands
-command! -nargs=1 -range=% MultipleCursorsFind 
+command! -nargs=1 -range=% MultipleCursorsFind
       \ call multiple_cursors#find(<line1>, <line2>, <q-args>)
 
 let &cpo = s:save_cpo
