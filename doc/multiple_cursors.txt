@@ -167,7 +167,7 @@ beginning with the default leader key work in multi-cursor mode. You have to
 manually set this because vim doesn't provide a way to see which keys _start_
 mappings.
 
-*g:multi_cursor_normal_maps* (Default: `{}`)
+*g:multi_cursor_normal_maps* (Default: `{'!':1,'@':1,'=':1,'q':1,'r':1,'t':1,'T':1,'y':1,'[':1,']':1,'\':1,'d':1,'f':1,'F':1,'g':1,'"':1,'z':1,'c':1,'m':1,'<':1,'>':1}`)
 
 Any key in this map (values are ignored) will cause multi-cursor _Normal_ mode
 to pause for map completion just like normal vim. Otherwise keys mapped in
