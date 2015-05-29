@@ -167,15 +167,23 @@ beginning with the default leader key work in multi-cursor mode. You have to
 manually set this because vim doesn't provide a way to see which keys _start_
 mappings.
 
-*g:multi_cursor_normal_maps* (Default: `{}`)
+*g:multi_cursor_normal_maps* (Default: see below)
+
+Default value: `{'!':1, '@':1, '=':1, 'q':1, 'r':1, 't':1, 'T':1, 'y':1, '[':1, ']':1, '\':1, 'd':1, 'f':1, 'F':1, 'g':1, '"':1, 'z':1, 'c':1, 'm':1, '<':1, '>':1}`
 
 Any key in this map (values are ignored) will cause multi-cursor _Normal_ mode
 to pause for map completion just like normal vim. Otherwise keys mapped in
 normal mode will "fail to replay" when multiple cursors are active. For example,
-setting it to `{'d':1}` will make normal-mode mappings beginning with `d` (such
-as `dw` to delete a word) work in multi-cursor mode. You have to
-manually set this because vim doesn't provide a way to see which keys _start_
-mappings; setting it to include motion commands like `j` can break things.
+changing it from `{}` to `{'d':1}` makes normal-mode mappings beginning with `d`
+(such as `dw` to delete a word) work in multi-cursor mode.
+
+The default list contents should work for anybody, unless they have remapped a
+key from an operator-pending command to a non-operator-pending command or
+vice versa.
+
+These keys must be manually listed because vim doesn't provide a way to
+automatically see which keys _start_ mappings, and trying to run motion commands
+such as `j` as if they were operator-pending commands can break things.
 
 
 The plugin uses the highlight group `multiple_cursors_cursor` and
