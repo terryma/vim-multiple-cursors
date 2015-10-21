@@ -27,11 +27,17 @@
 ### It's great for quick refactoring
 ![Example1](assets/example1.gif?raw=true)
 
+Vim command sequence: `fp<C-n><C-n><C-n>cname`
+
 ### Add a cursor to each line of your visual selection
 ![Example2](assets/example2.gif?raw=true)
 
+Vim command sequence: `vip<C-n>i"<Right><Right><Right>",<Esc>vipJ$r]Idays = [`
+
 ### Do it backwards too! This is not just a replay of the above gif :)
 ![Example3](assets/example3.gif?raw=true)
+
+Vim command sequence: `df[$r,0f,v<C-n>…<C-n>c<CR><Up><Del><Right><Right><Right><Del>`
 
 ### Add multiple cursors using regexes
 ![Example4](assets/example4.gif?raw=true)
