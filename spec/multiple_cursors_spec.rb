@@ -17,7 +17,7 @@ def before(string)
 end
 
 def after(string)
-  get_file_content().should eq normalize_string_indent(string)
+  expect(get_file_content()).to eq normalize_string_indent(string)
 end
 
 def type(string)
