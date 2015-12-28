@@ -931,6 +931,14 @@ function! s:apply_user_input_next(mode)
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
     call feedkeys("\<Plug>(multiple-cursors-wait)")
+    if exists('s:saved_char') && s:char ==# 'v' && s:to_mode ==# 'n'
+      if s:saved_char ==# 'I'
+        call feedkeys('bi')
+      elseif s:saved_char ==# 'A'
+        call feedkeys('a')
+      endif
+      unlet s:saved_char
+    endif
   else
     " Continue to next
     call feedkeys("\<Plug>(multiple-cursors-input)")
@@ -1124,6 +1132,10 @@ function! s:wait_for_user_input(mode)
   let s:char = s:retry_keys . s:saved_keys
   if len(s:saved_keys) == 0
     let s:char .= s:get_char()
+    if a:mode ==# 'v' && s:char =~# 'I\|A'
+      let s:saved_char = s:char
+      let s:char = 'v'
+    endif
   else
     let s:saved_keys = ""
   endif
