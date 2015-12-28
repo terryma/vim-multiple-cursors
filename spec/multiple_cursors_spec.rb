@@ -417,6 +417,38 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#visual mode 'I'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>Ibefore<Esc>'
+
+    after <<-EOF
+      hello beforeworld jan
+      hello beforeworld feb
+      hello beforeworld mar
+    EOF
+  end
+
+  specify "#visual mode 'A'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>Aafter<Esc>'
+
+    after <<-EOF
+      hello worldafter jan
+      hello worldafter feb
+      hello worldafter mar
+    EOF
+  end
+
   specify "#normal mode 'I'" do
     before <<-EOF
       hello
