@@ -449,6 +449,40 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#no word boundries visual mode 'I'" do
+    before <<-EOF
+      hello hibye world
+      hello hibye world
+      hello hibye world
+    EOF
+
+    vim.normal ':MultipleCursorsFind bye<CR>'
+    type 'Ibefore<Esc>'
+
+    after <<-EOF
+      hello hibeforebye world
+      hello hibeforebye world
+      hello hibeforebye world
+    EOF
+  end
+
+  specify "#variable-length regions visual mode 'I'" do
+    before <<-EOF
+      hello foo world
+      hello foooo world
+      hello foooooo world
+    EOF
+
+    vim.normal ':MultipleCursorsFind \<fo*\><CR>'
+    type 'Ibefore<Esc>'
+
+    after <<-EOF
+      hello beforefoo world
+      hello beforefoooo world
+      hello beforefoooooo world
+    EOF
+  end
+
   specify "#normal mode 'I'" do
     before <<-EOF
       hello

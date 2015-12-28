@@ -933,7 +933,18 @@ function! s:apply_user_input_next(mode)
     call feedkeys("\<Plug>(multiple-cursors-wait)")
     if exists('s:saved_char') && s:char ==# 'v' && s:to_mode ==# 'n'
       if s:saved_char ==# 'I'
-        call feedkeys('bi')
+        call s:cm.start_loop()
+        let pos = remove(s:saved_positions, 0)
+        call s:cm.get_current().update_position(pos)
+        call cursor(pos)
+        call s:cm.next()
+        while !s:cm.loop_done()
+          let pos = remove(s:saved_positions, 0)
+          call s:cm.get_current().update_position(pos)
+          call cursor(pos)
+          call s:cm.next()
+        endwhile
+        call feedkeys('i')
       elseif s:saved_char ==# 'A'
         call feedkeys('a')
       endif
@@ -1133,6 +1144,16 @@ function! s:wait_for_user_input(mode)
   if len(s:saved_keys) == 0
     let s:char .= s:get_char()
     if a:mode ==# 'v' && s:char =~# 'I\|A'
+      if s:char ==# 'I'
+        let s:saved_positions = []
+        call s:cm.start_loop()
+        call add(s:saved_positions, s:cm.get_current().visual[0])
+        call s:cm.next()
+        while !s:cm.loop_done()
+          call add(s:saved_positions, s:cm.get_current().visual[0])
+          call s:cm.next()
+        endwhile
+      endif
       let s:saved_char = s:char
       let s:char = 'v'
     endif
