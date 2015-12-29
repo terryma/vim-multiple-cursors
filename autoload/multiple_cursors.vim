@@ -1143,7 +1143,7 @@ function! s:wait_for_user_input(mode)
   let s:char = s:retry_keys . s:saved_keys
   if len(s:saved_keys) == 0
     let s:char .= s:get_char()
-    if a:mode ==# 'v' && s:char =~# 'I\|A'
+    if s:char =~# 'I\|A' && s:from_mode ==# 'v'
       if s:char ==# 'I'
         let s:saved_positions = []
         call s:cm.start_loop()

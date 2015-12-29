@@ -449,6 +449,38 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#resize regions visual mode 'I'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>hhhIbefore<Esc>'
+
+    after <<-EOF
+      hello beforeworld jan
+      hello beforeworld feb
+      hello beforeworld mar
+    EOF
+  end
+
+  specify "#resize regions visual mode 'A'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>hhhAbefore<Esc>'
+
+    after <<-EOF
+      hello wobeforerld jan
+      hello wobeforerld feb
+      hello wobeforerld mar
+    EOF
+  end
+
   specify "#no word boundries visual mode 'I'" do
     before <<-EOF
       hello hibye world
@@ -468,18 +500,18 @@ describe "Multiple Cursors" do
 
   specify "#variable-length regions visual mode 'I'" do
     before <<-EOF
-      hello foo world
-      hello foooo world
-      hello foooooo world
+      hello hii world
+      hello hiiii world
+      hello hiiiiii world
     EOF
 
-    vim.normal ':MultipleCursorsFind \<fo*\><CR>'
+    vim.normal ':MultipleCursorsFind \<hi*\><CR>'
     type 'Ibefore<Esc>'
 
     after <<-EOF
-      hello beforefoo world
-      hello beforefoooo world
-      hello beforefoooooo world
+      hello beforehii world
+      hello beforehiiii world
+      hello beforehiiiiii world
     EOF
   end
 
