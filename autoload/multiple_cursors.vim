@@ -363,6 +363,9 @@ function! s:CursorManager.new()
   let obj.current_index = -1
   " This marks the starting cursor index into the s:cursors array
   let obj.starting_index = -1
+  " We save the starts of the visual regions to reposition the cursors for
+  " transition into Insert Mode when `I` is input in Visual mode
+  let obj.saved_positions = []
   " We save some user settings when the plugin loads initially
   let obj.saved_settings = {
         \ 'virtualedit': &virtualedit,
@@ -626,6 +629,40 @@ function! s:CursorManager.restore_user_settings() dict
   call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
+" Restore the new cursor positions for transition from Normal into Insert mode
+function! s:CursorManager.restore_positions() dict
+  if s:char ==# 'v' && s:to_mode ==# 'n'
+    if s:saved_char ==# 'I'
+      call self.start_loop()
+      for _ in range(self.size())
+        let pos = remove(self.saved_positions, 0)
+        call self.get_current().update_position(pos)
+        call cursor(pos)
+        call self.next()
+      endfor
+      call feedkeys('i')
+    elseif s:saved_char ==# 'A'
+      call feedkeys('a')
+    endif
+    let s:saved_char = ''
+  endif
+endfunction
+
+" Save the new cursor positions when `I` is input in Visual mode
+function! s:CursorManager.save_positions() dict
+  if s:char =~# 'I\|A' && s:from_mode ==# 'v'
+    if s:char ==# 'I'
+      call self.start_loop()
+      for _ in range(self.size())
+        call add(self.saved_positions, self.get_current().visual[0])
+        call self.next()
+      endfor
+    endif
+    let s:saved_char = s:char
+    let s:char = 'v' " spoof a 'v' input to transiton from Visual into Normal mode
+  endif
+endfunction
+
 " Reselect the current cursor's region in visual mode
 function! s:CursorManager.reapply_visual_selection() dict
   call s:select_in_visual_mode(self.get_current().visual)
@@ -670,6 +707,9 @@ endfunction
 
 " This is the last user input that we're going to replicate, in its string form
 let s:char = ''
+" This is either `I` or `A`, as input in Visual mode, that we're going to use
+" to make the appropriate transition into Insert mode
+let s:saved_char = ''
 " This is the mode the user is in before s:char
 let s:from_mode = ''
 " This is the mode the user is in after s:char
@@ -931,25 +971,8 @@ function! s:apply_user_input_next(mode)
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
     call feedkeys("\<Plug>(multiple-cursors-wait)")
-    if exists('s:saved_char') && s:char ==# 'v' && s:to_mode ==# 'n'
-      if s:saved_char ==# 'I'
-        call s:cm.start_loop()
-        let pos = remove(s:saved_positions, 0)
-        call s:cm.get_current().update_position(pos)
-        call cursor(pos)
-        call s:cm.next()
-        while !s:cm.loop_done()
-          let pos = remove(s:saved_positions, 0)
-          call s:cm.get_current().update_position(pos)
-          call cursor(pos)
-          call s:cm.next()
-        endwhile
-        call feedkeys('i')
-      elseif s:saved_char ==# 'A'
-        call feedkeys('a')
-      endif
-      unlet s:saved_char
-    endif
+    " Restore the saved state to transition into Insert mode
+    call s:cm.restore_positions()
   else
     " Continue to next
     call feedkeys("\<Plug>(multiple-cursors-input)")
@@ -1143,20 +1166,8 @@ function! s:wait_for_user_input(mode)
   let s:char = s:retry_keys . s:saved_keys
   if len(s:saved_keys) == 0
     let s:char .= s:get_char()
-    if s:char =~# 'I\|A' && s:from_mode ==# 'v'
-      if s:char ==# 'I'
-        let s:saved_positions = []
-        call s:cm.start_loop()
-        call add(s:saved_positions, s:cm.get_current().visual[0])
-        call s:cm.next()
-        while !s:cm.loop_done()
-          call add(s:saved_positions, s:cm.get_current().visual[0])
-          call s:cm.next()
-        endwhile
-      endif
-      let s:saved_char = s:char
-      let s:char = 'v'
-    endif
+    " Save some state when `I` or `A` is input in Visual mode
+    call s:cm.save_positions()
   else
     let s:saved_keys = ""
   endif
