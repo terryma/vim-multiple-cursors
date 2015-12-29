@@ -268,6 +268,7 @@ function! s:Cursor.new(position)
   let obj = copy(self)
   let obj.position = copy(a:position)
   let obj.visual = []
+  let obj.saved_visual = []
   " Stores text that was yanked after any commands in Normal or Visual mode
   let obj.paste_buffer_text = getreg('"')
   let obj.paste_buffer_type = getregtype('"')
@@ -332,6 +333,7 @@ endfunction
 
 " Remove the visual selection and its highlight
 function! s:Cursor.remove_visual_selection() dict
+  let self.saved_visual = deepcopy(self.visual)
   let self.visual = []
   " TODO(terryma): Move functionality into separate class
   call s:cm.remove_highlight(self.visual_hi_id)
@@ -363,9 +365,6 @@ function! s:CursorManager.new()
   let obj.current_index = -1
   " This marks the starting cursor index into the s:cursors array
   let obj.starting_index = -1
-  " We save the starts of the visual regions to reposition the cursors for
-  " transition into Insert Mode when `I` is input in Visual mode
-  let obj.saved_positions = []
   " We save some user settings when the plugin loads initially
   let obj.saved_settings = {
         \ 'virtualedit': &virtualedit,
@@ -409,7 +408,6 @@ function! s:CursorManager.reset(restore_view, restore_setting, ...) dict
   let self.cursors = []
   let self.current_index = -1
   let self.starting_index = -1
-  let self.saved_positions = []
   let self.saved_winview = []
   let self.start_from_find = 0
   let s:char = ''
@@ -631,49 +629,11 @@ function! s:CursorManager.restore_user_settings() dict
   call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
-" Execute the given expressions for each cursor
-function! s:CursorManager.for_each_cursor(expressions) dict
-  call self.start_loop()
-  for _ in range(self.size())
-    execute join(a:expressions, '|')
-    call self.next()
+" Reposition all cursors to the start or end of their region
+function! s:CursorManager.reposition_all_within_region(start) dict
+  for c in self.cursors
+    call c.update_position(c.saved_visual[a:start ? 0 : 1])
   endfor
-endfunction
-
-" Restore the new cursor positions for transition from Normal into Insert mode
-function! s:CursorManager.restore_positions() dict
-  if empty(s:saved_char) || s:char !=# 'v' || s:to_mode !=# 'n'
-    return
-  endif
-
-  if s:saved_char ==# 'I'
-    call self.for_each_cursor([
-      \ 'let pos = remove(self.saved_positions, 0)',
-      \ 'call self.get_current().update_position(pos)',
-      \ 'call cursor(pos)'
-    \ ])
-    call feedkeys('i')
-  elseif s:saved_char ==# 'A'
-    call feedkeys('a')
-  endif
-
-  let s:saved_char = ''
-endfunction
-
-" Save the new cursor positions when `I` is input in Visual mode
-function! s:CursorManager.save_positions() dict
-  if s:char !~# 'I\|A' || s:from_mode !=# 'v'
-    return
-  endif
-
-  if s:char ==# 'I'
-    call self.for_each_cursor([
-      \ 'call add(self.saved_positions, self.get_current().visual[0])'
-    \ ])
-  endif
-
-  let s:saved_char = s:char
-  let s:char = 'v' " spoof a 'v' input to transiton from Visual into Normal mode
 endfunction
 
 " Reselect the current cursor's region in visual mode
@@ -957,6 +917,25 @@ function! s:detect_bad_input()
   endif
 endfunction
 
+" Complete transition into Insert mode when `I` or `A` is input in Visual mode
+function! s:handle_visual_IA_to_insert()
+  if !empty(s:saved_char) && s:char =~# 'v\|V' && s:to_mode ==# 'n'
+    if s:saved_char ==# 'I'
+      call s:cm.reposition_all_within_region(1)
+    endif
+    call feedkeys(tolower(s:saved_char))
+    let s:saved_char = ''
+  endif
+endfunction
+
+" Begin transition into Insert mode when `I` or `A` is input in Visual mode
+function! s:handle_visual_IA_to_normal()
+  if s:char =~# 'I\|A' && s:from_mode =~# 'v\|V'
+    let s:saved_char = s:char
+    let s:char = s:from_mode " spoof a 'v' or 'V' input to transiton from Visual into Normal mode
+  endif
+endfunction
+
 " Apply the user input at the next cursor location
 function! s:apply_user_input_next(mode)
   let s:valid_input = 1
@@ -984,8 +963,7 @@ function! s:apply_user_input_next(mode)
       call s:update_visual_markers(s:cm.get_current().visual)
     endif
     call feedkeys("\<Plug>(multiple-cursors-wait)")
-    " Restore the saved state to transition into Insert mode
-    call s:cm.restore_positions()
+    call s:handle_visual_IA_to_insert()
   else
     " Continue to next
     call feedkeys("\<Plug>(multiple-cursors-input)")
@@ -1179,8 +1157,7 @@ function! s:wait_for_user_input(mode)
   let s:char = s:retry_keys . s:saved_keys
   if len(s:saved_keys) == 0
     let s:char .= s:get_char()
-    " Save some state when `I` or `A` is input in Visual mode
-    call s:cm.save_positions()
+    call s:handle_visual_IA_to_normal()
   else
     let s:saved_keys = ""
   endif
