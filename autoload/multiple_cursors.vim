@@ -629,38 +629,49 @@ function! s:CursorManager.restore_user_settings() dict
   call setreg('"', s:paste_buffer_temporary_text, s:paste_buffer_temporary_type)
 endfunction
 
+" Execute the given expressions for each cursor
+function! s:CursorManager.for_each_cursor(expressions) dict
+  call self.start_loop()
+  for _ in range(self.size())
+    execute join(a:expressions, '|')
+    call self.next()
+  endfor
+endfunction
+
 " Restore the new cursor positions for transition from Normal into Insert mode
 function! s:CursorManager.restore_positions() dict
-  if s:char ==# 'v' && s:to_mode ==# 'n'
-    if s:saved_char ==# 'I'
-      call self.start_loop()
-      for _ in range(self.size())
-        let pos = remove(self.saved_positions, 0)
-        call self.get_current().update_position(pos)
-        call cursor(pos)
-        call self.next()
-      endfor
-      call feedkeys('i')
-    elseif s:saved_char ==# 'A'
-      call feedkeys('a')
-    endif
-    let s:saved_char = ''
+  if empty(s:saved_char) || s:char !=# 'v' || s:to_mode !=# 'n'
+    return
   endif
+
+  if s:saved_char ==# 'I'
+    call self.for_each_cursor([
+      \ 'let pos = remove(self.saved_positions, 0)',
+      \ 'call self.get_current().update_position(pos)',
+      \ 'call cursor(pos)'
+    \ ])
+    call feedkeys('i')
+  elseif s:saved_char ==# 'A'
+    call feedkeys('a')
+  endif
+
+  let s:saved_char = ''
 endfunction
 
 " Save the new cursor positions when `I` is input in Visual mode
 function! s:CursorManager.save_positions() dict
-  if s:char =~# 'I\|A' && s:from_mode ==# 'v'
-    if s:char ==# 'I'
-      call self.start_loop()
-      for _ in range(self.size())
-        call add(self.saved_positions, self.get_current().visual[0])
-        call self.next()
-      endfor
-    endif
-    let s:saved_char = s:char
-    let s:char = 'v' " spoof a 'v' input to transiton from Visual into Normal mode
+  if s:char !~# 'I\|A' || s:from_mode !=# 'v'
+    return
   endif
+
+  if s:char ==# 'I'
+    call self.for_each_cursor([
+      \ 'call add(self.saved_positions, self.get_current().visual[0])'
+    \ ])
+  endif
+
+  let s:saved_char = s:char
+  let s:char = 'v' " spoof a 'v' input to transiton from Visual into Normal mode
 endfunction
 
 " Reselect the current cursor's region in visual mode
