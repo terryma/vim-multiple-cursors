@@ -409,9 +409,11 @@ function! s:CursorManager.reset(restore_view, restore_setting, ...) dict
   let self.cursors = []
   let self.current_index = -1
   let self.starting_index = -1
+  let self.saved_positions = []
   let self.saved_winview = []
   let self.start_from_find = 0
   let s:char = ''
+  let s:saved_char = ''
   if a:restore_setting
     call self.restore_user_settings()
   endif
