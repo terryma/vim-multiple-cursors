@@ -13,7 +13,7 @@
  - *[Known Issues](#known-issues)*
  - [Changelog](#changelog)
  - [Contributing](#contributing)
- - [Credit](#credit) 
+ - [Credit](#credit)
 
 ###Contributors
 - [eapache](https://github.com/eapache)
@@ -150,9 +150,9 @@ such as `j` as if they were operator-pending commands can break things.
 
 ### ```Multiple_cursors_before/Multiple_cursors_after``` (Default: `nothing`)
 
-Other plugins may trigger on keypresses when in insert mode. These plugins 
+Other plugins may trigger on keypresses when in insert mode. These plugins
 generally provide a means to toggle their active state. These hooks allow
-the user to provide functions in their .vimrc to do this when multiple-cursor-mode 
+the user to provide functions in their .vimrc to do this when multiple-cursor-mode
 is entered.
 
 For example, if you are using [Neocomplete](https://github.com/Shougo/neocomplete.vim),
@@ -193,11 +193,6 @@ highlight link multiple_cursors_visual Visual
 
 ## Known Issues
 - Select mode is not implemented
-- `I` and `A` do not work in Visual mode yet (See [#55](../../issues/55))
-  
- Single key command to switch to Insert mode such as `c` or `s` from Visual mode or `i`, `a`, `I`, `A` in Normal mode should work without any issues. 
-
-**NOTE**: Vim's Visual Block mode also supports `I` and `A` commands, however they do not work in this plugin's Visual mode at the moment. For now, to use `I` and `A`, switch to Normal mode by pressing `v` first.
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
@@ -219,6 +214,4 @@ Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selec
 [emacs-multiple-cursors]:https://github.com/magnars/multiple-cursors.el
 
 
-
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/terryma/vim-multiple-cursors/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
