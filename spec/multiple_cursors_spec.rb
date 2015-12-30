@@ -417,6 +417,104 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#visual mode 'I'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>Ibefore<Esc>'
+
+    after <<-EOF
+      hello beforeworld jan
+      hello beforeworld feb
+      hello beforeworld mar
+    EOF
+  end
+
+  specify "#visual mode 'A'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>Aafter<Esc>'
+
+    after <<-EOF
+      hello worldafter jan
+      hello worldafter feb
+      hello worldafter mar
+    EOF
+  end
+
+  specify "#resize regions visual mode 'I'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>hhhIbefore<Esc>'
+
+    after <<-EOF
+      hello beforeworld jan
+      hello beforeworld feb
+      hello beforeworld mar
+    EOF
+  end
+
+  specify "#resize regions visual mode 'A'" do
+    before <<-EOF
+      hello world jan
+      hello world feb
+      hello world mar
+    EOF
+
+    type 'w<C-n><C-n><C-n>hhhAbefore<Esc>'
+
+    after <<-EOF
+      hello wobeforerld jan
+      hello wobeforerld feb
+      hello wobeforerld mar
+    EOF
+  end
+
+  specify "#no word boundries visual mode 'I'" do
+    before <<-EOF
+      hello hibye world
+      hello hibye world
+      hello hibye world
+    EOF
+
+    vim.normal ':MultipleCursorsFind bye<CR>'
+    type 'Ibefore<Esc>'
+
+    after <<-EOF
+      hello hibeforebye world
+      hello hibeforebye world
+      hello hibeforebye world
+    EOF
+  end
+
+  specify "#variable-length regions visual mode 'I'" do
+    before <<-EOF
+      hello hii world
+      hello hiiii world
+      hello hiiiiii world
+    EOF
+
+    vim.normal ':MultipleCursorsFind \<hi*\><CR>'
+    type 'Ibefore<Esc>'
+
+    after <<-EOF
+      hello beforehii world
+      hello beforehiiii world
+      hello beforehiiiiii world
+    EOF
+  end
+
   specify "#normal mode 'I'" do
     before <<-EOF
       hello
