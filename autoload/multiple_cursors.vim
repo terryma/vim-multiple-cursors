@@ -1085,7 +1085,6 @@ endfunction
 
 let s:retry_keys = ""
 function! s:display_error()
-
   if s:bad_input == s:cm.size()
         \ && ((s:from_mode ==# 'n' && has_key(g:multi_cursor_normal_maps, s:char[0]))
         \ ||  (s:from_mode ==# 'v' && has_key(g:multi_cursor_visual_maps, s:char[0])))
