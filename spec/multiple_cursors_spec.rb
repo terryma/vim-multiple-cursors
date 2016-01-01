@@ -539,6 +539,22 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#visual line mode 'f'" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>VfwvAafter<Esc>'
+
+    after <<-EOF
+      hello jan wafterorld
+      hello feb wafterorld
+      hello mar wafterorld
+    EOF
+  end
+
   specify "#visual mode 'I'" do
     before <<-EOF
       hello world jan
