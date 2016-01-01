@@ -911,6 +911,9 @@ endfunction
 " to be called to continue the fanout process
 function! s:detect_bad_input()
   if !s:valid_input
+    " To invoke the appropriate `<Plug>(multiple-cursors-apply)` mapping, we
+    " need to revert back to the mode the user was in when the input was entered
+    call s:revert_mode(s:to_mode, s:from_mode)
     " We ignore the bad input and force invoke s:apply_user_input_next
     call feedkeys("\<Plug>(multiple-cursors-apply)")
     let s:bad_input += 1
@@ -1083,8 +1086,8 @@ endfunction
 let s:retry_keys = ""
 function! s:display_error()
   if s:bad_input == s:cm.size()
-        \ && s:from_mode ==# 'n'
-        \ && has_key(g:multi_cursor_normal_maps, s:char[0])
+        \ && ((s:from_mode ==# 'n'    && has_key(g:multi_cursor_normal_maps, s:char[0]))
+        \ ||  (s:from_mode =~# 'v\|V' && has_key(g:multi_cursor_visual_maps, s:char[0])))
     " we couldn't replay it anywhere but we're told it's the beginning of a
     " multi-character map like the `d` in `dw`
     let s:retry_keys = s:char
