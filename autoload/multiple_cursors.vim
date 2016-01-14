@@ -510,7 +510,7 @@ function! s:CursorManager.update_current() dict
   " adjust other cursor locations
   if vdelta != 0
     if self.current_index != self.size() - 1
-      let cur_line_length = len(getline(cur.line()))
+      let cur_column_offset = (cur.column() - col('.')) * -1
       let new_line_length = len(getline('.'))
       for i in range(self.current_index+1, self.size()-1)
         let hdelta = 0
@@ -522,7 +522,7 @@ function! s:CursorManager.update_current() dict
         if cur.line() == c.line()
           if vdelta > 0
             " Added a line
-            let hdelta = cur_line_length * -1
+            let hdelta = cur_column_offset
           else
             " Removed a line
             let hdelta = new_line_length
