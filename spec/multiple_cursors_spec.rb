@@ -366,7 +366,7 @@ describe "Multiple Cursors" do
     EOF
   end
 
-  specify "#multiple new lines on one line in insert mode wih indents" do
+  specify "#multiple new lines on one line in insert mode with indents" do
     before <<-EOF
       'a','b','c','d','e'
     EOF
