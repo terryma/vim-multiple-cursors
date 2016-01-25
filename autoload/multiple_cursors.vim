@@ -231,6 +231,10 @@ function! multiple_cursors#find(start, end, pattern)
     call search(a:pattern, 'ceW')
     let right = s:pos('.')
     if s:compare_pos(right, pos2) > 0
+      " Position the cursor at the end of the previous match so it'll be on a
+      " virtual cursor when multicursor mode is started. The `winrestview()`
+      " call below 'undoes' unnecessary repositionings
+      call search(a:pattern, 'be')
       break
     endif
     call s:cm.add(right, [left, right])
