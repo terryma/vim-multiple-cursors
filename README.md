@@ -208,7 +208,7 @@ highlight link multiple_cursors_visual Visual
 
 ## Issue Creation Requirements
 
-This is a community supported project. Contributor's time is precious and limited. To ensure your issue is not closed out of hand, please ensure it meets the requirements outlined in [ISSUES.md](ISSUES.md).
+This is a community supported project. Contributor's time is precious and limited. To ensure your issue is not closed out of hand, please ensure it meets the requirements outlined in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
