@@ -12,7 +12,8 @@
  - [Interactions with other plugins](#interactions-with-other-plugins)
  - [Highlight](#highlight)
  - *[FAQ](#faq)*
- - *[Known Issues](#known-issues)*
+ - *[Known issues](#known-issues)*
+ - *[Issue creation requirements](#issue-creation-requirements)*
  - [Changelog](#changelog)
  - [Contributing](#contributing)
  - [Credit](#credit)
@@ -204,6 +205,10 @@ highlight link multiple_cursors_visual Visual
 
 ## Known Issues
 - Select mode is not implemented
+
+## Issue Creation Requirements
+
+This is a community supported project. Contributor's time is precious and limited. To ensure your issue is not closed out of hand, please ensure it meets the requirements outlined in [ISSUES.md](ISSUES.md).
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
