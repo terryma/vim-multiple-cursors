@@ -42,7 +42,7 @@ Vim command sequence: `2Gdf[$r,0f,v<C-n>…<C-n>c<CR><Up><Del><Right><Right><Rig
 ### Add multiple cursors using regexes
 ![Example4](assets/example4.gif?raw=true)
 
-To see what keystrokes are used for the above examples, see [this issue](https://github.com/terryma/vim-multiple-cursors/issues/39).
+To see what keystrokes are used for the above examples, see [the wiki page](https://github.com/terryma/vim-multiple-cursors/wiki/Keystrokes-for-example-gifs).
 
 ## Features
 - Live update in Insert mode
