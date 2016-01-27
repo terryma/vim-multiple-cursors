@@ -218,7 +218,7 @@ function! multiple_cursors#find(start, end, pattern)
   let first = 1
   while 1
     if first
-      " Set `virtualedit` to 'onemore' for the first search to be able to
+      " Set `virtualedit` to 'onemore' for the first search to consistently
       " match patterns like '$'
       let saved_virtualedit = &virtualedit
       let &virtualedit = "onemore"
