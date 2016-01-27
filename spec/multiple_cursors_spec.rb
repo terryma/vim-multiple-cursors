@@ -429,6 +429,48 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#find command start-of-line" do
+    before <<-EOF
+      hello
+      world
+
+      hello
+      world
+    EOF
+
+    vim.normal ':MultipleCursorsFind ^<CR>'
+    type 'Ibegin<Esc>'
+
+    after <<-EOF
+      beginhello
+      beginworld
+      begin
+      beginhello
+      beginworld
+    EOF
+  end
+
+  specify "#find command end-of-line" do
+    before <<-EOF
+      hello
+      world
+
+      hello
+      world
+    EOF
+
+    vim.normal ':MultipleCursorsFind $<CR>'
+    type 'Iend<Esc>'
+
+    after <<-EOF
+      helloend
+      worldend
+      end
+      helloend
+      worldend
+    EOF
+  end
+
   specify "#visual line mode replacement" do
     before <<-EOF
       hello world
