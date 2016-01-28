@@ -218,9 +218,12 @@ function! multiple_cursors#find(start, end, pattern)
   let first = 1
   while 1
     if first
+      " Set `virtualedit` to 'onemore' for the first search to consistently
+      " match patterns like '$'
+      let saved_virtualedit = &virtualedit
+      let &virtualedit = "onemore"
       " First search starts from the current position
       let match = search(a:pattern, 'cW')
-      let first = 0
     else
       let match = search(a:pattern, 'W')
     endif
@@ -228,8 +231,21 @@ function! multiple_cursors#find(start, end, pattern)
       break
     endif
     let left = s:pos('.')
-    call search(a:pattern, 'ceW')
+    " Perform an intermediate backward search to correctly match patterns like
+    " '^' and '$'
+    let match = search(a:pattern, 'bceW')
     let right = s:pos('.')
+    " Reset the cursor and perform a normal search if the intermediate search
+    " wasn't successful
+    if !match || s:compare_pos(right, left) != 0
+      call cursor(left)
+      call search(a:pattern, 'ceW')
+      let right = s:pos('.')
+    endif
+    if first
+      let &virtualedit = saved_virtualedit
+      let first = 0
+    endif
     if s:compare_pos(right, pos2) > 0
       " Position the cursor at the end of the previous match so it'll be on a
       " virtual cursor when multicursor mode is started. The `winrestview()`
