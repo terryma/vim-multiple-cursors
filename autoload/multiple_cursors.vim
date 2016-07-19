@@ -1207,8 +1207,16 @@ function! s:wait_for_user_input(mode)
     call feedkeys(s:char)
     call s:cm.reset(1, 1)
     return
-  elseif s:from_mode ==# 'n'
+  elseif s:from_mode ==# 'n' || s:from_mode =~# 'v\|V'
     while match(s:last_char(), "\\d") == 0
+      if match(s:char, "^0") == 0
+        " fixes an edge case concerning the `0` key.
+        " The 0 key behaves differently from [1-9].
+        " It's consumed immediately when it is the
+        " first key typed while we're waiting for input.
+        " References: issue #152, pull #207
+        break
+      endif
       let s:char .= s:get_char()
     endwhile
   endif
