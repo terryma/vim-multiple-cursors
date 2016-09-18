@@ -35,7 +35,7 @@ Vim command sequence: `2Gfp<C-n><C-n><C-n>cname`
 ### Add a cursor to each line of your visual selection
 ![Example2](assets/example2.gif?raw=true)
 
-Vim command sequence: `2Gvip<C-n>i"<Right><Right><Right>",<Esc>vipJ$r]Idays = [`
+Vim command sequence: `2Gvip<C-n>i"<Right><Right><Right>",<Esc>vipgJ$r]Idays = [`
 
 ### Do it backwards too! This is not just a replay of the above gif :)
 ![Example3](assets/example3.gif?raw=true)
