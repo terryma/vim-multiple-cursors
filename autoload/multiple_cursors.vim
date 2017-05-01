@@ -395,6 +395,7 @@ function! s:CursorManager.new()
         \ 'lazyredraw': &lazyredraw,
         \ 'paste': &paste,
         \ 'clipboard': &clipboard,
+        \ 'selection': &selection
         \ }
   " We save the window view when multicursor mode is entered
   let obj.saved_winview = []
@@ -621,6 +622,7 @@ function! s:CursorManager.initialize() dict
   let self.saved_settings['lazyredraw'] = &lazyredraw
   let self.saved_settings['paste'] = &paste
   let self.saved_settings['clipboard'] = &clipboard
+  let self.saved_settings['selection'] = &selection
   let &virtualedit = "onemore"
   let &cursorline = 0
   let &lazyredraw = 1
@@ -645,6 +647,7 @@ function! s:CursorManager.restore_user_settings() dict
     let &lazyredraw = self.saved_settings['lazyredraw']
     let &paste = self.saved_settings['paste']
     let &clipboard = self.saved_settings['clipboard']
+    let &selection = self.saved_settings['selection']
   endif
 
   " Restore original contents and type of unnamed register. This method is
