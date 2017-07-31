@@ -1014,13 +1014,28 @@ function! s:get_visual_region(pos)
   return region
 endfunction
 
+function! s:strpart(s, i, l)
+  if a:l == 0
+    return ''
+  endif
+  let [s, l] = ['', 0]
+  for c in split(a:s[a:i :], '\zs')
+    let s .= c
+    let l += len(c)
+    if l >= a:l
+      break
+    endif
+  endfor
+  return s
+endfunction
+
 " Return the content of the buffer between the input region. This is used to
 " find the next match in the buffer
 " Mode change: Normal -> Normal
 " Cursor change: None
 function! s:get_text(region)
   let lines = getline(a:region[0][0], a:region[1][0])
-  let lines[-1] = lines[-1][:a:region[1][1] - 1]
+  let lines[-1] = s:strpart(lines[-1], 0, a:region[1][1])
   let lines[0] = lines[0][a:region[0][1] - 1:]
   return join(lines, "\n")
 endfunction
