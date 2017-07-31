@@ -797,4 +797,20 @@ describe "Multiple Cursors" do
     EOF
   end
 
+  specify "#multi-byte strings" do
+    before <<-EOF
+      こんにちわビム
+      世界の中心でビムを叫ぶ
+      ビム大好き
+    EOF
+
+    type '/ビム<CR><C-n><C-n><C-n>cヴィム<ESC>'
+
+    after <<-EOF
+      こんにちわヴィム
+      世界の中心でヴィムを叫ぶ
+      ヴィム大好き
+    EOF
+  end
+
 end
