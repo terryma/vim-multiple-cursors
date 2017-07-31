@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*- 
 require 'spec_helper'
 
 def set_file_content(string)
