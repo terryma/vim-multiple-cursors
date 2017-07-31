@@ -1019,7 +1019,7 @@ function! s:strpart(s, i, l)
     return ''
   endif
   let [s, l] = ['', 0]
-  for c in split(a:s, '\zs')
+  for c in split(a:s[a:i :], '\zs')
     let s .= c
     let l += len(c)
     if l >= a:l
