@@ -100,6 +100,17 @@ function! multiple_cursors#get_latency_debug_file()
   return s:latency_debug_file
 endfunction
 
+
+function! s:fire_pre_triggers()
+  if !s:before_function_called
+    doautocmd User MultipleCursorsPre
+    if exists('*Multiple_cursors_before')
+      exe "call Multiple_cursors_before()"
+    endif
+    let s:before_function_called = 1
+  endif
+endfunction
+
 " Creates a new cursor. Different logic applies depending on the mode the user
 " is in and the current state of the buffer.
 " 1. In normal mode, a new cursor is created at the end of the word under Vim's
@@ -111,13 +122,7 @@ endfunction
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode, word_boundary)
   " Call before function if exists only once until it is canceled (<Esc>)
-  if !s:before_function_called
-    doautocmd User MultipleCursorsPre
-    if exists('*Multiple_cursors_before')
-      exe "call Multiple_cursors_before()"
-    endif
-    let s:before_function_called = 1
-  endif
+  call s:fire_pre_triggers()
   let s:use_word_boundary = a:word_boundary
   if a:mode ==# 'n'
     " Reset all existing cursors, don't restore view and setting
@@ -272,10 +277,7 @@ function! multiple_cursors#find(start, end, pattern)
 
     " If we've created any cursors, we need to call the before function, end
     " function will be called via normal routes
-    if exists('*Multiple_cursors_before') && !s:before_function_called
-      exe "call Multiple_cursors_before()"
-      let s:before_function_called = 1
-    endif
+    call s:fire_pre_triggers()
 
     call s:wait_for_user_input('v')
   endif
