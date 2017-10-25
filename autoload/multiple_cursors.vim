@@ -59,6 +59,11 @@ endif
 let s:paste_buffer_temporary_text = ''
 let s:paste_buffer_temporary_type = ''
 
+" If deoplete is installed, avoid crashing (same default key binding)
+if exists('g:deoplete#disable_auto_complete') 
+	let g:deoplete#disable_auto_complete = 1
+endif
+
 "===============================================================================
 " Internal Mappings
 "===============================================================================
@@ -1067,6 +1072,10 @@ function! s:exit()
     let exit = 1
   elseif s:from_mode ==# 'i' && g:multi_cursor_exit_from_insert_mode
     stopinsert
+    " Allow deoplete to operate again
+    if exists('g:deoplete#disable_auto_complete') 
+       let g:deoplete#disable_auto_complete = 0
+    endif
     let exit = 1
   endif
   if exit
