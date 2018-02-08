@@ -598,7 +598,8 @@ endfunction
 
 " Start tracking cursor updates
 function! s:CursorManager.start_loop() dict
-  let self.starting_index = self.current_index
+  let self.current_index  = 0
+  let self.starting_index = 0
 endfunction
 
 " Returns true if we're cycled through all the cursors
