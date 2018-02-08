@@ -103,7 +103,7 @@ endfunction
 
 function! s:fire_pre_triggers()
   if !s:before_function_called
-    doautocmd User MultipleCursorsPre
+    silent doautocmd User MultipleCursorsPre
     if exists('*Multiple_cursors_before')
       exe "call Multiple_cursors_before()"
     endif
@@ -445,7 +445,7 @@ function! s:CursorManager.reset(restore_view, restore_setting, ...) dict
     if exists('*Multiple_cursors_after')
       exe "call Multiple_cursors_after()"
     endif
-    doautocmd User MultipleCursorsPost
+    silent doautocmd User MultipleCursorsPost
     let s:before_function_called = 0
   endif
 endfunction
