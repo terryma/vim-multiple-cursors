@@ -527,7 +527,7 @@ function! s:CursorManager.update_current() dict
     call cur.save_unnamed_register()
 
     call cur.remove_visual_selection()
-  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != self.size() - 1
+  elseif s:from_mode ==# 'i' && s:to_mode ==# 'n' && self.current_index != 0
     normal! h
   elseif s:from_mode ==# 'n'
     " Save contents of unnamed register after each operation in Normal mode.
@@ -598,7 +598,8 @@ endfunction
 
 " Start tracking cursor updates
 function! s:CursorManager.start_loop() dict
-  let self.starting_index = self.current_index
+  let self.current_index  = 0
+  let self.starting_index = 0
 endfunction
 
 " Returns true if we're cycled through all the cursors
