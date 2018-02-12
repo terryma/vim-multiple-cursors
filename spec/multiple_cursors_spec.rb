@@ -190,7 +190,33 @@ describe "Multiple Cursors when visual_maps is empty" do
 
 end
 
-describe "Multiple Cursors" do
+describe "Multiple Cursors when changing the line count" do
+  let(:filename) { 'test.txt' }
+  let(:options) { ['set backspace=indent,eol,start'] }
+
+  specify "#backspace on first char of the line, then carriage return" do
+    before <<-EOF
+      madec
+      
+      antoine
+      joseph
+      andre
+    EOF
+
+    type 'Gvip<C-n>i<BS><cr>'
+
+    after <<-EOF
+      madec
+      
+      antoine
+      joseph
+      andre
+    EOF
+  end
+
+end
+
+describe "Multiple Cursors misc" do
   let(:filename) { 'test.txt' }
   let(:options) { ['set autoindent'] }
 
