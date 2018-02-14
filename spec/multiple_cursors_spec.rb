@@ -136,6 +136,38 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
     EOF
   end
 
+  specify "#normal mode '0': goes to 1st char of line" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>vw0dw<Esc><Esc>'
+
+    after <<-EOF
+      jan world
+      feb world
+      mar world
+    EOF
+  end
+
+  specify "#normal mode 'd0': deletes backward to 1st char of line" do
+    before <<-EOF
+      hello jan world
+      hello feb world
+      hello mar world
+    EOF
+
+    type '<C-n><C-n><C-n>vwd0<Esc><Esc>'
+
+    after <<-EOF
+      jan world
+      feb world
+      mar world
+    EOF
+  end
+
 end
 
 describe "Multiple Cursors when normal_maps is empty" do
