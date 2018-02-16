@@ -170,6 +170,47 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
 
 end
 
+describe "Multiple Cursors when using insert mapings" do
+  let(:filename) { 'test.txt' }
+  let(:options) { ['imap jj <esc>', 'imap jojo dude', 'let g:multi_cursor_insert_maps = { "j": 1 }' ] }
+  specify "#mapping doing <Esc>" do
+    before <<-EOF
+      hello world!
+      hello world!
+      bla bla bla
+      bla bla bla
+    EOF
+
+    type 'w<C-n><C-n>cjjidude<Esc>'
+
+    after <<-EOF
+      hello dude!
+      hello !
+      bla bla bla
+      bla bla bla
+    EOF
+  end
+
+  specify "#mapping using more than 2 characters" do
+    before <<-EOF
+      hello
+      hello
+      bla bla bla
+      bla bla bla
+    EOF
+
+    type '<C-n><C-n>A jojo<Esc>'
+
+    after <<-EOF
+      hello dude
+      hello dude
+      bla bla bla
+      bla bla bla
+    EOF
+  end
+
+end
+
 describe "Multiple Cursors when normal_maps is empty" do
   let(:filename) { 'test.txt' }
   let(:options) { ['let g:multi_cursor_normal_maps = {}'] }
