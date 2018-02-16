@@ -1211,21 +1211,25 @@ function! s:wait_for_user_input(mode)
   endif
 
   if s:from_mode ==# 'i' && has_key(g:multi_cursor_insert_maps, s:last_char())
-    let c = getchar(0)
-    let char_type = type(c)
     let poll_count = 0
-    while char_type == 0 && c == 0 && poll_count < &timeoutlen
-      sleep 1m
+    let char_mapping = ""
+    while poll_count < &timeoutlen
       let c = getchar(0)
       let char_type = type(c)
       let poll_count += 1
+      if char_type == 0 && c != 0
+        let s:char .= nr2char(c)
+      elseif char_type == 1 " char with more than 8 bits (as string)
+        let s:char .= c
+      endif
+      let char_mapping = maparg(s:char, "i")
+      if char_mapping != ""
+        " handle case where mapping is <esc>
+        exec 'let s:char = "\'.char_mapping.'"'
+        break
+      endif
+      sleep 1m
     endwhile
-
-    if char_type == 0 && c != 0
-      let s:char .= nr2char(c)
-    elseif char_type == 1 " char with more than 8 bits (as string)
-      let s:char .= c
-    endif
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
     call feedkeys(s:char)
     call s:cm.reset(1, 1)
