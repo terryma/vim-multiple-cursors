@@ -172,7 +172,7 @@ end
 
 describe "Multiple Cursors when using insert mapings" do
   let(:filename) { 'test.txt' }
-  let(:options) { ['imap jj <esc>', 'imap jojo dude', 'let g:multi_cursor_insert_maps = { "j": 1 }' ] }
+  let(:options) { ['imap jj <esc>', 'imap jojo dude'] }
   specify "#mapping doing <Esc>" do
     before <<-EOF
       hello world!
