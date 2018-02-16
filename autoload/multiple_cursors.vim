@@ -1224,14 +1224,12 @@ function! s:wait_for_user_input(mode)
       endif
       let char_mapping = maparg(s:char, "i")
       if char_mapping != ""
+        " handle case where mapping is <esc>
+        exec 'let s:char = "\'.char_mapping.'"'
         break
       endif
       sleep 1m
     endwhile
-    if char_mapping != ""
-      " handle case where mapping is <esc>
-      exec 'let s:char = "\'.char_mapping.'"'
-    endif
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
     call feedkeys(s:char)
     call s:cm.reset(1, 1)
