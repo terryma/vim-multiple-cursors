@@ -1210,7 +1210,11 @@ function! s:wait_for_user_input(mode)
     let s:saved_keys = ""
   endif
 
-  if s:from_mode ==# 'i' && has_key(g:multi_cursor_insert_maps, s:last_char())
+  " ambiguous mappings are note supported; e.g.:
+  "   imap jj JJ
+  "   imap jjj JJJ
+  " will always trigger the 'jj' mapping
+  if s:from_mode ==# 'i' && mapcheck(s:char, "i") != ""
     let poll_count = 0
     let char_mapping = ""
     while poll_count < &timeoutlen
