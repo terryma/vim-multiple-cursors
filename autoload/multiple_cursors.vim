@@ -1230,7 +1230,7 @@ function! s:wait_for_user_input(mode)
       " break if chars exactly match mapping or if chars don't match beging of mapping anymore
       if char_mapping != "" || mapcheck(s:char, "i") == ""
         " handle case where mapping is <esc>
-        exec 'let s:char = "\'.char_mapping.'"'
+        exec 'let s:char = "'.substitute(char_mapping, '<', '\\<', 'g').'"'
         break
       endif
       sleep 1m
