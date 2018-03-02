@@ -1220,16 +1220,17 @@ function! s:wait_for_user_input(mode)
     while poll_count < &timeoutlen
       let c = getchar(0)
       let char_type = type(c)
-      let poll_count += 1
+      let poll_count += 1.5
       if char_type == 0 && c != 0
         let s:char .= nr2char(c)
       elseif char_type == 1 " char with more than 8 bits (as string)
         let s:char .= c
       endif
       let char_mapping = maparg(s:char, "i")
-      if char_mapping != ""
+      " break if chars exactly match mapping or if chars don't match beging of mapping anymore
+      if char_mapping != "" || mapcheck(s:char, "i") == ""
         " handle case where mapping is <esc>
-        exec 'let s:char = "\'.char_mapping.'"'
+        exec 'let s:char = "'.substitute(char_mapping, '<', '\\<', 'g').'"'
         break
       endif
       sleep 1m
