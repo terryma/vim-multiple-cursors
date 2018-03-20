@@ -1216,7 +1216,7 @@ function! s:wait_for_user_input(mode)
   " will always trigger the 'jj' mapping
   if s:from_mode ==# 'i' && mapcheck(s:char, "i") != ""
     let poll_count = 0
-    let char_mapping = ""
+    let map_dict = {}
     while poll_count < &timeoutlen
       let c = getchar(0)
       let char_type = type(c)
@@ -1226,9 +1226,15 @@ function! s:wait_for_user_input(mode)
       elseif char_type == 1 " char with more than 8 bits (as string)
         let s:char .= c
       endif
-      let char_mapping = maparg(s:char, "i")
+      let map_dict = maparg(s:char, "i", 0, 1)
       " break if chars exactly match mapping or if chars don't match beging of mapping anymore
-      if char_mapping != "" || mapcheck(s:char, "i") == ""
+      if map_dict != {} || mapcheck(s:char, "i") == ""
+        if get(map_dict, 'expr', 0)
+          " handle case where {rhs} is a function
+          exec 'let char_mapping = ' . map_dict['rhs']
+        else
+          let char_mapping = get(map_dict, 'rhs', s:char)
+        endif
         " handle case where mapping is <esc>
         exec 'let s:char = "'.substitute(char_mapping, '<', '\\<', 'g').'"'
         break
