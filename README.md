@@ -179,6 +179,8 @@ endfunction
 
 With this locking and unlocking we prevent neocomplete to trigger it's function calls until we are finished with multiple cursors editing.
 
+See also [this similar issue](https://github.com/Shougo/deoplete.nvim/issues/265#issuecomment-212978003) with Deoplete.
+
 Plugins themselves can register `User` autocommands on `MultipleCursorsPre` and
 `MultipleCursorsPost` for automatic integration.
 
