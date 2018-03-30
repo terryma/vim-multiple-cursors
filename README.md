@@ -101,8 +101,6 @@ let g:multi_cursor_start_word_key='g<C-n>'
 ```
 In this configuration `<C-n>` will start multicursor mode without word boundaries (but only in Normal mode, as it does not make much sense to use it in Visual mode). Old behaviour with word boundaries is still available using `g<C-n>`.
 
-**IMPORTANT:** Please note that currently only single keystrokes and special keys can be mapped. This means that a mapping like `<Leader>n` will NOT work correctly. For a list of special keys that are supported, see `help :key-notation`
-
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
 **NOTE:** Prior to version 1.3, the recommended way to map the keys is using the expression quote syntax in Vim, using something like `"\<C-n>"` or `"\<Esc>"` (see h: expr-quote). After 1.3, the recommended way is to use a raw string like above. If your key mappings don't appear to work, give the new syntax a try.
