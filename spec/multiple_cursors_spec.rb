@@ -170,32 +170,9 @@ describe "Multiple Cursors op pending & exit from insert|visual mode" do
 
 end
 
-describe "Multiple Cursors key mapings" do
-  let(:filename) { 'test.txt' }
-  let(:options) { ['let g:multi_cursor_use_default_mapping=0', 'let g:multi_cursor_next_key=\'\n\'', 'let g:multi_cursor_prev_key=\'<C-p>\'', 'let g:multi_cursor_skip_key=\'<C-x>\'', 'let g:multi_cursor_quit_key=\'kj\'']}
-  specify "#key mapping \\n instead of <C-n> and kj instead of <Esc>" do
-    before <<-EOF
-      hello world!
-      hello world!
-      bla bla bla
-      bla bla bla
-    EOF
-
-    type 'w\n\nckjidudekj'
-
-    after <<-EOF
-      hello dude!
-      hello !
-      bla bla bla
-      bla bla bla
-    EOF
-  end
-
-end
-
 describe "Multiple Cursors when using insert mapings" do
   let(:filename) { 'test.txt' }
-  let(:options) { ['imap jj <esc>', 'imap jojo dude'] }
+  let(:options) { ['set timeoutlen=10000', 'imap jj <esc>', 'imap jojo dude'] }
   specify "#mapping doing <Esc>" do
     before <<-EOF
       hello world!
