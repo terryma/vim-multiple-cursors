@@ -1180,7 +1180,7 @@ function! s:end_latency_measure()
 endfunction
 
 function! s:get_time_in_ms()
-  return substitute(reltimestr(reltime()), '\.\(...\).*', '\1', '')
+  return str2nr(substitute(reltimestr(reltime()), '\.\(...\).*', '\1', ''))
 endfunction
 
 function! s:last_char()
@@ -1239,6 +1239,7 @@ function! s:wait_for_user_input(mode)
       if s:get_time_in_ms() > (s_time + &timeoutlen)
         break
       endif
+      sleep 100m
     endwhile
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
     call feedkeys(s:char)
@@ -1284,6 +1285,7 @@ function! s:wait_for_user_input(mode)
         if s:get_time_in_ms() > (s_time + &timeoutlen)
           break
         endif
+        sleep 100m
       endif
     end
   endwhile
