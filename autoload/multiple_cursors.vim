@@ -1222,7 +1222,8 @@ function! s:wait_for_user_input(mode)
     let map_dict = {}
     let s_time = s:get_time_in_ms()
     while 1
-      let s:char .= s:get_char(0)
+      let new_char = s:get_char(0)
+      let s:char .= new_char
       let map_dict = maparg(s:char, "i", 0, 1)
       " break if chars exactly match mapping or if chars don't match beging of mapping anymore
       if map_dict != {} || mapcheck(s:char, "i") == ""
@@ -1239,7 +1240,13 @@ function! s:wait_for_user_input(mode)
       if s:get_time_in_ms() > (s_time + &timeoutlen)
         break
       endif
-      sleep 100m
+      " short sleep: make it responsive in between 2 chars
+      " long sleep: avoid making while loop too long on slow systems
+      if new_char == ''
+        sleep 50m
+      else
+        sleep 10m
+      endif
     endwhile
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
     call feedkeys(s:char)
@@ -1281,11 +1288,18 @@ function! s:wait_for_user_input(mode)
       if is_special_key == 1 || is_quit_key == 1
         break
       else
-        let s:char .= s:get_char(0)
+        let new_char = s:get_char(0)
+        let s:char .= new_char
         if s:get_time_in_ms() > (s_time + &timeoutlen)
           break
         endif
-        sleep 100m
+        " short sleep: make it responsive in between 2 chars
+        " long sleep: avoid making while loop too long on slow systems
+        if new_char == ''
+          sleep 50m
+        else
+          sleep 10m
+        endif
       endif
     end
   endwhile
