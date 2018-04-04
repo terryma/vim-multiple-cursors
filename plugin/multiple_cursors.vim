@@ -35,6 +35,8 @@ let s:settings = {
 
 let s:settings_if_default = {
       \ 'quit_key': '<Esc>',
+      \ 'start_key': 'g<C-n>',
+      \ 'start_word_key': '<C-n>',
       \ 'next_key': '<C-n>',
       \ 'prev_key': '<C-p>',
       \ 'skip_key': '<C-x>',
@@ -55,9 +57,7 @@ if g:multi_cursor_use_default_mapping
 endif
 
 if !exists('g:multi_cursor_start_word_key')
-  if exists('g:multi_cursor_start_key')
-    let g:multi_cursor_start_word_key = g:multi_cursor_start_key
-  elseif exists('g:multi_cursor_next_key')
+  if exists('g:multi_cursor_next_key')
     let g:multi_cursor_start_word_key = g:multi_cursor_next_key
   endif
 endif

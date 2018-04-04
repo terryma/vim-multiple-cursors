@@ -77,29 +77,18 @@ You can also add multiple cursors using a regular expression. The command `Multi
 Out of the box, only the single key `Ctrl-n` is mapped in regular Vim's Normal mode and Visual mode to provide the functionality mentioned above. `Ctrl-n`, `Ctrl-p`, `Ctrl-x`, and `<Esc>` are mapped in the special multicursor mode once you've added at least one virtual cursor to the buffer. If you don't like the plugin taking over your favorite key bindings, you can turn off the default with
 ```viml
 let g:multi_cursor_use_default_mapping=0
-```
 
-You can then map the 'next', 'previous', 'skip', and 'exit' keys like the following:
-```viml
 " Default mapping
+let g:multi_cursor_start_word_key='<C-n>'
+let g:multi_cursor_start_key='g<C-n>'
 let g:multi_cursor_next_key='<C-n>'
 let g:multi_cursor_prev_key='<C-p>'
 let g:multi_cursor_skip_key='<C-x>'
 let g:multi_cursor_quit_key='<Esc>'
 ```
 
-By default, the 'next' key is also used to enter multicursor mode. If you want to use a different key to start multicursor mode than for selecting the next location, do like the following:
-```viml
-" Map start key separately from next key
-let g:multi_cursor_start_key='<F6>'
-```
-
-Note that when multicursor mode is started, it selects current word with boundaries, i.e. it behaves like `*`. If you want to avoid word boundaries in Normal mode (as `g*` does) but still have old behaviour up your sleeve, you can do the following:
-```viml
-let g:multi_cursor_start_key='<C-n>'
-let g:multi_cursor_start_word_key='g<C-n>'
-```
-In this configuration `<C-n>` will start multicursor mode without word boundaries (but only in Normal mode, as it does not make much sense to use it in Visual mode). Old behaviour with word boundaries is still available using `g<C-n>`.
+By default `<C-n>` will start multicursor mode with word boundaries (behaves like `*`) and `g<C-n>` without word boundaries (behaves like `g*`).
+`g<C-n>` only makes sense in Normal mode, for other modes, use `<C-n>`.
 
 **NOTE:** Please make sure to always map something to `g:multi_cursor_quit_key`, otherwise you'll have a tough time quitting from multicursor mode.
 
