@@ -55,8 +55,7 @@ NOTE: start with `g<C-n>` to match without boundaries (behaves like `g*` instead
 
 visual mode when multiple lines are selected~
 
-    - start:            `<C-n>` add virtual cursors on each line
-    - next, skip, prev: unavailable since no word is selected
+    - start: `<C-n>` add virtual cursors on each line
 
 You can now change the virtual cursors with |normal-mode| commands.
 For instance: `ciw`.

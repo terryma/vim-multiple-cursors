@@ -49,7 +49,6 @@ At any time, you can press `<Esc>` to exit back to regular Vim.
 
 ### visual mode when multiple lines are selected
   * start: `<C-n>` add _virtual cursors_ on each line
-  * next, skip, prev: unavailable since no word is selected
 
 You can now change the _virtual cursors_ with **normal mode** commands.  
 For instance: `ciw`.
@@ -189,6 +188,3 @@ Obviously inspired by Sublime Text's [multiple selection][sublime-multiple-selec
 [Vundle]:http://github.com/gmarik/vundle
 [Neobundle]:http://github.com/Shougo/neobundle.vim
 [emacs-multiple-cursors]:https://github.com/magnars/multiple-cursors.el
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/terryma/vim-multiple-cursors/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
