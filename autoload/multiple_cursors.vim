@@ -283,6 +283,22 @@ function! multiple_cursors#find(start, end, pattern)
   endif
 endfunction
 
+" apply multiple_cursors#find() on the whole buffer
+function! multiple_cursors#select_all(mode, word_boundary)
+  if a:mode == 'v'
+    let a_save = @a
+    normal! gv"ay
+    let pattern = @a
+    let @a = a_save
+  elseif a:mode == 'n'
+    let pattern = expand('<cword>')
+  endif
+  if a:word_boundary == 1
+    let pattern = '\<'.pattern.'\>'
+  endif
+  call multiple_cursors#find(1, line('$'), pattern)
+endfunction
+
 "===============================================================================
 " Cursor class
 "===============================================================================

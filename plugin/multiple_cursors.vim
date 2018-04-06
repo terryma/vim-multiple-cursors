@@ -34,12 +34,14 @@ let s:settings = {
       \ }
 
 let s:settings_if_default = {
-      \ 'quit_key': '<Esc>',
-      \ 'start_key': 'g<C-n>',
-      \ 'start_word_key': '<C-n>',
-      \ 'next_key': '<C-n>',
-      \ 'prev_key': '<C-p>',
-      \ 'skip_key': '<C-x>',
+      \ 'quit_key':            '<Esc>',
+      \ 'start_key':           'g<C-n>',
+      \ 'start_word_key':      '<C-n>',
+      \ 'next_key':            '<C-n>',
+      \ 'prev_key':            '<C-p>',
+      \ 'skip_key':            '<C-x>',
+      \ 'select_all_key':      'g<C-m><C-n>',
+      \ 'select_all_word_key': '<C-m><C-n>',
       \ }
 
 let s:default_normal_maps = {'!':1, '@':1, '=':1, 'q':1, 'r':1, 't':1, 'T':1, 'y':1, '[':1, ']':1, '\':1, 'd':1, 'f':1, 'F':1, 'g':1, '"':1, 'z':1, 'c':1, 'm':1, '<':1, '>':1}
@@ -76,6 +78,21 @@ if exists('g:multi_cursor_start_word_key')
   " In Visual mode word boundary is not used
   exec 'xnoremap <silent> '.g:multi_cursor_start_word_key.
         \' :<C-u>call multiple_cursors#new("v", 0)<CR>'
+endif
+
+if exists('g:multi_cursor_select_all_key')
+  exec 'nnoremap <silent> '.g:multi_cursor_select_all_key.
+        \' :call multiple_cursors#select_all("n", 0)<CR>'
+  exec 'xnoremap <silent> '.g:multi_cursor_select_all_key.
+        \' :<C-u>call multiple_cursors#select_all("v", 0)<CR>'
+endif
+
+if exists('g:multi_cursor_select_all_word_key')
+  exec 'nnoremap <silent> '.g:multi_cursor_select_all_word_key.
+        \' :call multiple_cursors#select_all("n", 1)<CR>'
+  " In Visual mode word boundary is not used
+  exec 'xnoremap <silent> '.g:multi_cursor_select_all_word_key.
+        \' :<C-u>call multiple_cursors#select_all("v", 0)<CR>'
 endif
 
 " Commands

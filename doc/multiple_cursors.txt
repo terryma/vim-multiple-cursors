@@ -36,11 +36,15 @@ another attempt at that.
 ==============================================================================
 2. Usage                                              *multiple-cursors-usage*
 
-Out of the box, all you need to know is a single key CTRL-N. Pressing the key
-in Normal mode highlights the current word under the cursor in Visual mode and
-places a virtual cursor at the end of it. Pressing it again finds the next
-ocurrence and places another virtual cursor at the end of the visual
-selection. If you select multiple lines in Visual mode, pressing the key puts
+Out of the box, all you need to know is a single key CTRL-N.
+
+Pressing the key in Normal mode highlights the current word under the cursor
+in Visual mode and places a virtual cursor at the end of it. Pressing it again
+finds the next ocurrence and places another virtual cursor at the end of the
+visual selection. You can also directly select all occurences by pressing
+CTRL-M CTRL-N.
+
+If you select multiple lines in Visual mode, pressing the key puts
 a virtual cursor at every line and leaves you in Normal mode.
 
 After you've marked all your locations with CTRL-N, you can change the visual
@@ -55,7 +59,7 @@ Two additional keys are also mapped:
 
 CTRL-P in Visual mode will remove the current virtual cursor and go back to
 the previous virtual cursor location. This is useful if you are trigger happy
-with Ctrl-n and accidentally went too far.
+with Ctrl-N and accidentally went too far.
 
 CTRL-X in Visual mode will remove the current virtual cursor and skip to the
 next virtual cursor location. This is useful if you don't want the current
@@ -75,40 +79,46 @@ new one.
 
 *g:multi_cursor_start_word_key* (Default: '<C-n>')
     normal:
-        - start multicursor mode with word boundary
-        - select word like `*`
+        - start multicursor mode with word boundary (like `*`)
     visual:
-        - start muticursor mode with selected word
+        - start muticursor mode with visual selection
     visual line/block:
         - start muticursor with no selection
         - cursors start on the left of the visual block
         - cannot use 'next' 'previous' and 'skip'
 
-*g:multi_cursor_start_key* (Default: 'g<C-n>')
+*g:multi_cursor_select_all_word_key* (Default: '<C-m><C-n>')
     normal:
-        - start multicursor mode without word boundary
-        - select word like `g*`
+        - select all occurences with word boundary (like `*`)
+    visual:
+        - select all occurences of visual selection
+    cannot use 'next' 'previous' and 'skip'
+
+*g:multi_cursor_start_key* (Default: 'g<C-n>')
+    like *g:multi_cursor_start_word_key* but select words like `g*`
+
+*g:multi_cursor_select_all_key* (Default: 'g<C-m><C-n>')
+    like *g:multi_cursor_select_all_word_key* but select words like `g*`
 
 *g:multi_cursor_next_key* (Default: '<C-n>')
 *g:multi_cursor_prev_key* (Default: '<C-p>')
 *g:multi_cursor_skip_key* (Default: '<C-x>')
 *g:multi_cursor_quit_key* (Default: '<Esc>')
-Out of the box, only the single key CTRL-N is mapped in regular Vim's Normal
-mode and Visual mode to provide the functionality mentioned above. CTRL-N,
-CTRL-P, CTRL-X, and <ESC> are mapped in the special multicursor mode once
-you've added at least one virtual cursor to the buffer. If you don't like the
-plugin taking over your favorite key bindings, you can turn off the default
-with >
+
+If you don't like the plugin taking over your favorite key bindings, you can
+turn off the default with >
 
     let g:multi_cursor_use_default_mapping=0
 
     " Default mapping
-    let g:multi_cursor_start_word_key='<C-n>'
-    let g:multi_cursor_start_key='g<C-n>'
-    let g:multi_cursor_next_key='<C-n>'
-    let g:multi_cursor_prev_key='<C-p>'
-    let g:multi_cursor_skip_key='<C-x>'
-    let g:multi_cursor_quit_key='<Esc>'
+    let g:multi_cursor_start_word_key      = '<C-n>'
+    let g:multi_cursor_select_all_word_key = '<C-m><C-n>'
+    let g:multi_cursor_start_key           = 'g<C-n>'
+    let g:multi_cursor_select_all_key      = 'g<C-m><C-n>'
+    let g:multi_cursor_next_key            = '<C-n>'
+    let g:multi_cursor_prev_key            = '<C-p>'
+    let g:multi_cursor_skip_key            = '<C-x>'
+    let g:multi_cursor_quit_key            = '<Esc>'
 <
 
 NOTE: Please make sure to always map something to |g:multi_cursor_quit_key|,
