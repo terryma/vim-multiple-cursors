@@ -1258,7 +1258,6 @@ function! s:wait_for_user_input(mode)
       let s:char .= new_char
       if new_char == ''
         sleep 50m
-        echom "DBG: sleep insert"
       endif
     endwhile
   elseif s:from_mode !=# 'i' && s:char[0] ==# ":"
