@@ -40,8 +40,8 @@ let s:settings_if_default = {
       \ 'next_key':            '<C-n>',
       \ 'prev_key':            '<C-p>',
       \ 'skip_key':            '<C-x>',
-      \ 'select_all_key':      'g<C-m><C-n>',
-      \ 'select_all_word_key': '<C-m><C-n>',
+      \ 'select_all_key':      'g<A-n>',
+      \ 'select_all_word_key': '<A-n>',
       \ }
 
 let s:default_normal_maps = {'!':1, '@':1, '=':1, 'q':1, 'r':1, 't':1, 'T':1, 'y':1, '[':1, ']':1, '\':1, 'd':1, 'f':1, 'F':1, 'g':1, '"':1, 'z':1, 'c':1, 'm':1, '<':1, '>':1}
