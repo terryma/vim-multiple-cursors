@@ -49,7 +49,7 @@ Requires vim 7.4 or later for full functionality.
     * next:         `<C-n>` add a new _virtual cursor + selection_ on the next match
     * skip:         `<C-x>` skip the next match
     * prev:         `<C-p>` remove current _virtual cursor + selection_ and go back on previous match
-  * select all:     `<C-m><C-n>` start muticursor and directly select all matches
+  * select all:     `<A-n>` start muticursor and directly select all matches
 
 You can now change the _virtual cursors + selection_ with **visual mode** commands.  
 For instance: `c`, `s`, `I`, `A` work without any issues.  
@@ -77,9 +77,9 @@ let g:multi_cursor_use_default_mapping=0
 
 " Default mapping
 let g:multi_cursor_start_word_key      = '<C-n>'
-let g:multi_cursor_select_all_word_key = '<C-m><C-n>'
+let g:multi_cursor_select_all_word_key = '<A-n>'
 let g:multi_cursor_start_key           = 'g<C-n>'
-let g:multi_cursor_select_all_key      = 'g<C-m><C-n>'
+let g:multi_cursor_select_all_key      = 'g<A-n>'
 let g:multi_cursor_next_key            = '<C-n>'
 let g:multi_cursor_prev_key            = '<C-p>'
 let g:multi_cursor_skip_key            = '<C-x>'
