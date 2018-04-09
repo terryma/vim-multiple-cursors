@@ -107,11 +107,6 @@ to pause for map completion just like normal vim. Otherwise keys mapped in
 normal mode will "fail to replay" when multiple cursors are active.  
 For example: `{'d':1}` makes normal-mode command `dw` work in multi-cursor mode.
 
-### ```g:multi_cursor_visual_maps``` (Default: see below)
-`{'T': 1, 'a': 1, 't': 1, 'F': 1, 'f': 1, 'i': 1}`
-
-Same principle as `g:multi_cursor_normal_maps`
-
 The default list contents should work for anybody, unless they have remapped a
 key from an operator-pending command to a non-operator-pending command or
 vice versa.
@@ -119,6 +114,11 @@ vice versa.
 These keys must be manually listed because vim doesn't provide a way to
 automatically see which keys _start_ mappings, and trying to run motion commands
 such as `j` as if they were operator-pending commands can break things.
+
+### ```g:multi_cursor_visual_maps``` (Default: see below)
+`{'T': 1, 'a': 1, 't': 1, 'F': 1, 'f': 1, 'i': 1}`
+
+Same principle as `g:multi_cursor_normal_maps`
 
 ### Interactions with other plugins
 
