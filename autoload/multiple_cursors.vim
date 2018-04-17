@@ -1245,7 +1245,7 @@ function! s:wait_for_user_input(mode)
           " handle case where {rhs} is a function
           exec 'let char_mapping = ' . map_dict['rhs']
         else
-          let char_mapping = get(map_dict, 'rhs', s:char)
+          let char_mapping = maparg(s:char, "i")
         endif
         " handle case where mapping is <esc>
         exec 'let s:char = "'.substitute(char_mapping, '<', '\\<', 'g').'"'
