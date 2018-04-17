@@ -20,10 +20,11 @@ CONTENTS                                            *multiple-cursors-contents*
     4.Global Options..........................|multiple-cursors-global-options|
     5.Interactions with other plugins.........|multiple-cursors-other-plugins|
     6.Highlight...............................|multiple-cursors-highlight|
-    7.Contributing............................|multiple-cursors-contributing|
-    8.License.................................|multiple-cursors-license|
-    9.Credit..................................|multiple-cursors-credit|
-   10.References..............................|multiple-cursors-references|
+    7.FAQ.....................................|multiple-cursors-faq|
+    8.Contributing............................|multiple-cursors-contributing|
+    9.License.................................|multiple-cursors-license|
+   10.Credit..................................|multiple-cursors-credit|
+   11.References..............................|multiple-cursors-references|
 
 ==============================================================================
 1. Intro                                              *multiple-cursors-intro*
@@ -164,7 +165,33 @@ like the following in your vimrc: >
     highlight link multiple_cursors_visual Visual
 
 ==============================================================================
-7. Contributing                                *multiple-cursors-contributing*
+7. FAQ                                              *multiple-cursors-faq*
+
+Q:  <A-n> doesn't seem to work in VIM but works in gVIM, why?
+A:  This is a well known terminal/Vim [9], different terminal have different
+    ways to send `Alt+key`.  Try adding this in your `.vimrc` and make sure
+    to replace the string: >
+    if !has('gui_running')
+      map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
+    endif
+Or remap the following: >
+    g:multi_cursor_start_key
+    g:multi_cursor_select_all_key
+
+Q:  <C-n> doesn't seem to work in gVIM?
+A:  Try setting `set selection=inclusive` in your `~/.gvimrc`
+
+Q:  is it also working on Mac?
+A:  On Mac OS, MacVim[10] is known to work.
+
+Q:  How can I select `n` keywords with several keystrokes? `200<C-n>` does not work.
+A:  You can use :MultipleCursorsFind keyword. I have this binding in my vimrc: >
+    nnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
+    vnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
+This allows one to search for the keyword using `*` and turn search results into cursors with `Alt-j`.
+
+==============================================================================
+8. Contributing                                *multiple-cursors-contributing*
 
 The project is hosted on Github. Patches, feature requests and suggestions are
 always welcome!
@@ -173,12 +200,12 @@ Find the latest version of the plugin here:
     http://github.com/terryma/vim-multiple-cursors
 
 ==============================================================================
-8. License                                          *multiple-cursors-license*
+9. License                                          *multiple-cursors-license*
 
 The project is licensed under the MIT license [7]. Copyright 2013 Terry Ma
 
 ==============================================================================
-9. Credit                                            *multiple-cursors-credit*
+10. Credit                                           *multiple-cursors-credit*
 
 The plugin is obviously inspired by Sublime Text's awesome multiple selection
 [6] feature. Some inspiration was also taken from Emac's multiple cursors [8]
@@ -195,5 +222,7 @@ implementation.
 [6] http://www.sublimetext.com/docs/2/multiple_selection_with_the_keyboard.html
 [7] http://opensource.org/licenses/MIT
 [8] https://github.com/magnars/multiple-cursors.el
+[9] http://vim.wikia.com/wiki/Get_Alt_key_to_work_in_terminal
+[10] https://code.google.com/p/macvim
 
  vim:tw=78:sw=4:ft=help:norl:

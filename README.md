@@ -158,13 +158,27 @@ highlight link multiple_cursors_visual Visual
 
 ## FAQ
 
+#### **Q** <kbd>ALT</kbd>+<kbd>n</kbd> doesn't seem to work in VIM but works in gVIM, why?
+**A** This is a well known terminal/Vim [issue](http://vim.wikia.com/wiki/Get_Alt_key_to_work_in_terminal), different terminal have different ways to send ```Alt+key```.  
+Try adding this in your `.vimrc` and **make sure to replace the string**:
+```vim
+if !has('gui_running')
+  map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
+endif
+```
+Or remap the following:
+```vim
+g:multi_cursor_start_key
+g:multi_cursor_select_all_key
+```
+
 #### **Q** <kbd>CTRL</kbd>+<kbd>n</kbd> doesn't seem to work in gVIM?
 **A** Try setting `set selection=inclusive` in your `~/.gvimrc`
 
 #### **Q** is it also working on Mac?
 **A** On Mac OS, [MacVim](https://code.google.com/p/macvim/) is known to work.
 
-#### **Q** How can I select `n` keywords with several keystrokes? `200<C-n>` which does not work...
+#### **Q** How can I select `n` keywords with several keystrokes? `200<C-n>` does not work.
 **A** You can use :MultipleCursorsFind keyword. I have this binding in my vimrc:
 
 ```VimL
