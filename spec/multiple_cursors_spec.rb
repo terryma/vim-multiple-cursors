@@ -209,6 +209,24 @@ describe "Multiple Cursors when using insert mapings" do
     EOF
   end
 
+  specify "#unused mapping" do
+    before <<-EOF
+      hello world!
+      hello world!
+      bla bla bla
+      bla bla bla
+    EOF
+
+    type 'w<C-n><C-n>chey joseph blah blah blah<Esc>'
+
+    after <<-EOF
+      hello hey joseph blah blah blah!
+      hello hey joseph blah blah blah!
+      bla bla bla
+      bla bla bla
+    EOF
+  end
+
 end
 
 describe "Multiple Cursors when normal_maps is empty" do
