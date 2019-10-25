@@ -37,7 +37,13 @@ Vim command sequence: `df[$r,0f,v<C-n>…<C-n>c<CR><Up><Del><Right><Right><Right
 To see what keystrokes are used for the above examples, see [the wiki page](https://github.com/terryma/vim-multiple-cursors/wiki/Keystrokes-for-example-gifs).
 
 ## Installation
-Install using [Pathogen], [Vundle], [Neobundle], [vim-plug], or your favorite Vim package manager.
+If you are using VIM version 8 or higher you can use its built-in package management; see `:help packages` for more information. Just run these commands in your terminal:
+```bash
+git clone https://github.com/terryma/vim-multiple-cursors ~/.vim/pack/vendor/start/vim-multiple-cursors
+vim -u NONE -c "helptags  ~/.vim/pack/vendor/start/vim-multiple-cursors/doc" -c "q"
+```
+
+Otherwise, these are some of the other options: [Pathogen], [Vundle], [Neobundle], [vim-plug].
 
 Requires vim 7.4 or newer for full functionality.
 
